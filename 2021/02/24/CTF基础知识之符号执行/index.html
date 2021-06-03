@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="符号执行概念及原理介绍符号执行是程序分析的一种思路，可以类比解方程：我不知道该怎如何确定输入（或感兴趣的变量等）和程序执行路径之间的关系，但我可以把输入设为变量x（此为“符号”），然后对照纸面上的程序，每执行一步，我就记录下来它执行的条件（此为“执行”），作为方程的一部分。如果碰到分支语句，就分为两个方程，一个方程对应一个分支执行条件。如此等到程序结束，我就有了一堆方程，每个方程对应一个执行路径。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CTF基础知识之符号执行">
+<meta property="og:url" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/index.html">
+<meta property="og:site_name" content="L1E6N0A2">
+<meta property="og:description" content="符号执行概念及原理介绍符号执行是程序分析的一种思路，可以类比解方程：我不知道该怎如何确定输入（或感兴趣的变量等）和程序执行路径之间的关系，但我可以把输入设为变量x（此为“符号”），然后对照纸面上的程序，每执行一步，我就记录下来它执行的条件（此为“执行”），作为方程的一部分。如果碰到分支语句，就分为两个方程，一个方程对应一个分支执行条件。如此等到程序结束，我就有了一堆方程，每个方程对应一个执行路径。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/a1.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/Blog/blog/source_posts/CTF基础知识之符号执行/a1.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/u.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/Blog/blog/source_posts/CTF基础知识之符号执行/u.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/%E8%BE%93%E5%87%BA.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/Blog/blog/source_posts/CTF基础知识之符号执行/输出.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/%E9%AA%8C%E8%AF%811.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/Blog/blog/source_posts/CTF基础知识之符号执行/验证1.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/%E9%AA%8C%E8%AF%812.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/Blog/blog/source_posts/CTF基础知识之符号执行/验证2.png">
+<meta property="article:published_time" content="2021-02-24T02:57:41.000Z">
+<meta property="article:modified_time" content="2021-03-19T12:27:16.408Z">
+<meta property="article:author" content="lyj789">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/a1.png">
+
+<link rel="canonical" href="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CTF基础知识之符号执行 | L1E6N0A2</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">L1E6N0A2</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">监督自己不断学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CTF基础知识之符号执行
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-24 10:57:41" itemprop="dateCreated datePublished" datetime="2021-02-24T10:57:41+08:00">2021-02-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-19 20:27:16" itemprop="dateModified" datetime="2021-03-19T20:27:16+08:00">2021-03-19</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="符号执行"><a href="#符号执行" class="headerlink" title="符号执行"></a>符号执行</h2><h4 id="概念及原理介绍"><a href="#概念及原理介绍" class="headerlink" title="概念及原理介绍"></a>概念及原理介绍</h4><p>符号执行是程序分析的一种思路，可以类比解方程：我不知道该怎如何确定输入（或感兴趣的变量等）和程序执行路径之间的关系，但我可以把输入设为变量x（此为“符号”），然后对照纸面上的程序，每执行一步，我就记录下来它执行的条件（此为“执行”），作为方程的一部分。如果碰到分支语句，就分为两个方程，一个方程对应一个分支执行条件。如此等到程序结束，我就有了一堆方程，每个方程对应一个执行路径。想分析哪个路径，解对应的方程就行了。通过这样的分析技术，就可以获得让特定区域执行的输入。</p>
+<a id="more"></a>
+
+<p>符号执行技术是一种白盒的静态分析技术。符号执行(symbolic execution)本身是静态的，因为它只是把具体的输入值(input value)用符号值(symbolic value)替换，然后根据符号值的的约束条件在约束求解器(constraint solver)允许的条件下求解出满足条件的输入值。如果把上述最终状态属性替换成程序形成的bug状态，比如，存在数组越界复制的状态，那么，我们就能够利用此技术挖掘漏洞的输入向量了。</p>
+<img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/a1.png" class title="a1">
+
+<p><img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/Blog\blog\source_posts\CTF基础知识之符号执行\a1.png" alt="1"></p>
+<p>左边的代码中，testme()函数有3条执行路径，组成了右图中的执行树。直观上来看，我们只要给出三个输入就可以遍历这三个路径，即图中绿色的x和y取值。符号执行的目标就是能够生成这样的输入集合，在给定的时间内探索所有的路径。</p>
+<p>符号执行通过维护符号状态和路径约束，以便在运行过程中传递信息。</p>
+<ul>
+<li>符号状态(symbolic state)：符号执行维护一个符号状态σ，将变量映射到符号表达式。</li>
+<li>符号路径约束(symbolic path constraint)：符号路径约束PC，它是符号表达式上无量词的一阶公式。</li>
+<li>在执行开始时，将σ初始化为一个空映射，将PC初始化为true；</li>
+<li>在符号执行过程中，σ和PC都会更新。</li>
+<li>在沿着程序执行路径的符号执行结束时，使用约束求解器对PC进行求解，以生成具体的输入值。 如果程序在这些具体的输入值上执行，它将采用与符号执行完全相同的路径，并以相同的方式终止。</li>
+</ul>
+<p>对于样例代码，具体的过程如下</p>
+<ul>
+<li><p>初始化：初始化符号状态σ为空，符号路径约束PC为true；</p>
+</li>
+<li><p>在每个赋值v = e处，符号执行都通过将 v 映射到σ(e)来更新σ，该映射是通过对当前符号状态求值, 而获得的符号表达式。 例如：</p>
+</li>
+<li><ul>
+<li>main（）函数的前两行（第16-17行）的符号执行导致σ= {x ↦x0，y ↦ y0}，其中x0，y0是两个初始不受约束的符号值；</li>
+<li>在执行第6行之后，σ = {x ↦x0，y ↦y0，z ↦ 2y0}。</li>
+</ul>
+</li>
+<li><p>对于每个条件语句：if（e） then S1 else S2。</p>
+</li>
+<li><ul>
+<li>在第7行之后，分别创建了两个符号执行实例，分别具有路径约束x0 = 2y0和x ≠ 2y0;</li>
+<li>在第8行之后，分别创建两个具有路径约束的符号执行实例（x0 = 2y0）∧（x0 &gt; y0 + 10）和（x0 = 2y0）∧（x0 ≤ y0 + 10）。</li>
+<li>“then”分支： PC被更新为PC ∧ σ(e)；</li>
+<li>“else”分支： 生成一个新的PC’, PC’被初始化为：PC∧¬ σ(e)；</li>
+<li>如果分支的状态σ的PC可满足，则符号执行沿着分支继续，否则路径终止。<br>例如:</li>
+</ul>
+</li>
+<li><p>如果一个符号执行实例碰到了exit或error时，当前符号执行实例就会被终止，并利用一个现成的约束求解器来生成一个可满足当前路径约束的赋值。 例如：</p>
+</li>
+<li><ul>
+<li>三条路径按照约束求解后，分别得到我们期望的三组输入：{x=0, y=1}，{x=2, y=1}和{x=30, y=15}。</li>
+</ul>
+</li>
+<li><p>若代码中包含循环或递归结构，且它们的终止条件是符号化的，则可能导致有无穷多条路径。在实践过程中，需要对路径搜索设置一个限制，例如timeout，限制路径数量，循环迭代次数或探测深度。</p>
+</li>
+</ul>
+<p>经典的符号执行有一个关键的缺点，若符合执行路径的符号路径约束无法使用约束求解器进行有效的求解，则无法生成输入。</p>
+<h4 id="Angr一个简单的实践"><a href="#Angr一个简单的实践" class="headerlink" title="Angr一个简单的实践"></a>Angr一个简单的实践</h4><p>angr是一个基于python的二进制漏洞分析框架，它将以前多种分析技术集成进来，­­­它能够进行动态的符号执行分析（如，KLEE和Mayhem），也能够进行多种静态分析</p>
+<p><strong>基本思路：</strong></p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">①.新建一个Angr工程，并且载入二进制文件</span><br><span class="line">②.创建程序入口点的<span class="keyword">state</span></span><br><span class="line">③.将要求解的变量符号化</span><br><span class="line">④.创建SimulationManager进行程序执行管理</span><br><span class="line">⑤.搜索满足我们目标的<span class="keyword">state</span></span><br><span class="line">⑥.求解程序执行到<span class="keyword">state</span>时，符号化变量所需要的约束条件</span><br><span class="line">⑥.解出约束条件，获得目标值</span><br></pre></td></tr></table></figure>
+
+<p><strong>程序</strong></p>
+<p>不同的u对应不同的输出，为了找到能输出 “you win”的u，通过符号执行进行分析。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="keyword">char</span> u=<span class="number">0</span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i, bits[<span class="number">2</span>]=&#123;<span class="number">0</span>,<span class="number">0</span>&#125;;</span><br><span class="line">	<span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;<span class="number">8</span>; i++) &#123;</span><br><span class="line">		bits[(u&amp;(<span class="number">1</span>&lt;&lt;i))!=<span class="number">0</span>]++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (bits[<span class="number">0</span>]==bits[<span class="number">1</span>]) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;you win!&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;you lose!&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>python脚本如下，每行代码的含义见备注</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr</span><br><span class="line"><span class="keyword">import</span> claripy</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span>():</span></span><br><span class="line">	<span class="comment">#新建一个工程，导入二进制文件，后面的选项是选择不自动加载依赖项</span></span><br><span class="line">	p = angr.Project(<span class="string">&#x27;D:/WinAFL/angr-doc/examples/sym-write/issue&#x27;</span>, load_options=&#123;<span class="string">&quot;auto_load_libs&quot;</span>: <span class="literal">False</span>&#125;)</span><br><span class="line">	<span class="comment">#函数返回一个代表着程序入口点的state对象，这也就是我们进行符号执行的核心对象，包括了符号信息、内存信息、寄存器信息等</span></span><br><span class="line">	state = p.factory.entry_state(add_options=&#123;angr.options.SYMBOLIC_WRITE_ADDRESSES&#125;)</span><br><span class="line"> 	<span class="comment">#创建一个符号变量，这个符号变量以8位bitvector形式存在，名称为u</span></span><br><span class="line">	u = claripy.BVS(<span class="string">&quot;u&quot;</span>, <span class="number">8</span>)</span><br><span class="line">	<span class="comment">#把符号变量保存到指定的地址中，这个地址是和二进制文件相关联的， 0x0804a021</span></span><br><span class="line">	state.memory.store(<span class="number">0x0804a021</span>, u)</span><br><span class="line">	<span class="comment">#创建一个Simulation Manager对象，这个对象和我们的状态有关系</span></span><br><span class="line">	sm = p.factory.simulation_manager(state)</span><br><span class="line">	<span class="comment"># 使用explore函数进行状态搜寻，检查输出字符串是win还是lose</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">correct</span>(<span class="params">state</span>):</span></span><br><span class="line">		<span class="keyword">try</span>:</span><br><span class="line">			<span class="keyword">return</span> <span class="string">b&#x27;win&#x27;</span> <span class="keyword">in</span> state.posix.dumps(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">except</span>:</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">wrong</span>(<span class="params">state</span>):</span></span><br><span class="line">		<span class="keyword">try</span>:</span><br><span class="line">			<span class="keyword">return</span> <span class="string">b&#x27;lose&#x27;</span> <span class="keyword">in</span> state.posix.dumps(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">except</span>:</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">	<span class="comment">#寻找到满足correct条件且不满足wrong条件的state，即目标state。</span></span><br><span class="line">	sm.explore(find=correct, avoid=wrong)</span><br><span class="line">     <span class="comment">#获得到state之后，运行state.solver.eval(u)求解u的值。</span></span><br><span class="line">	<span class="keyword">return</span> sm.found[<span class="number">0</span>].solver.eval_upto(u, <span class="number">256</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">	print(<span class="built_in">repr</span>(main()))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>补充说明u的地址：使用IDA打开，此地址对应的.bss段全局变量u的地址</p>
+<img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/u.png" class title="u">
+
+<p><img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/Blog\blog\source_posts\CTF基础知识之符号执行\u.png" alt="u"></p>
+</blockquote>
+<p>输出如下</p>
+<img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/%E8%BE%93%E5%87%BA.png" class title="输出">
+
+<p><img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/Blog\blog\source_posts\CTF基础知识之符号执行\输出.png" alt="输出"></p>
+<p>验证正确。</p>
+<img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/%E9%AA%8C%E8%AF%811.png" class title="验证1">
+
+<p><img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/Blog\blog\source_posts\CTF基础知识之符号执行\验证1.png" alt="验证1"></p>
+<img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/%E9%AA%8C%E8%AF%812.png" class title="验证2">
+
+<p><img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/Blog\blog\source_posts\CTF基础知识之符号执行\验证2.png" alt="验证2"></p>
+<h4 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h4><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zhuzhuzhu22/article/details/80350441">https://blog.csdn.net/zhuzhuzhu22/article/details/80350441</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/53533149/answer/152262963">https://www.zhihu.com/question/53533149/answer/152262963</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.pianshen.com/article/5473288632/">https://www.pianshen.com/article/5473288632/</a></p>
+<p>样例来源：<a target="_blank" rel="noopener" href="https://github.com/angr/angr-doc/examples/sym_write">https://github.com/angr/angr-doc/examples/sym_write</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%B1%A1%E7%82%B9%E5%88%86%E6%9E%90/" rel="prev" title="CTF基础知识之污点分析">
+      <i class="fa fa-chevron-left"></i> CTF基础知识之污点分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/" rel="next" title="CTF基础知识之模糊测试">
+      CTF基础知识之模糊测试 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C"><span class="nav-number">1.</span> <span class="nav-text">符号执行</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5%E5%8F%8A%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.0.1.</span> <span class="nav-text">概念及原理介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Angr%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.0.2.</span> <span class="nav-text">Angr一个简单的实践</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%EF%BC%9A"><span class="nav-number">1.0.3.</span> <span class="nav-text">参考资料：</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lyj789</p>
+  <div class="site-description" itemprop="description">快乐打工人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lyj789</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">94k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:25</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

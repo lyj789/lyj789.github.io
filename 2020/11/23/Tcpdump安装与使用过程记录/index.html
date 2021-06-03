@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Tcpdump安装与使用过程记录为了抓取摄像头与手机app之间的数据包，使用tcpdump进行抓包。 用简单的话来定义tcpdump，就是：dump the traffic on a  network，根据使用者的定义对网络上的数据包进行截获的包分析工具。 tcpdump可以将网络中传送的数据包的“头”完全截获下来提供分析。它支持针对网络层、协议、主机、网络或端口的过滤，并提供and、or、not">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tcpdump安装与使用过程记录">
+<meta property="og:url" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:site_name" content="L1E6N0A2">
+<meta property="og:description" content="Tcpdump安装与使用过程记录为了抓取摄像头与手机app之间的数据包，使用tcpdump进行抓包。 用简单的话来定义tcpdump，就是：dump the traffic on a  network，根据使用者的定义对网络上的数据包进行截获的包分析工具。 tcpdump可以将网络中传送的数据包的“头”完全截获下来提供分析。它支持针对网络层、协议、主机、网络或端口的过滤，并提供and、or、not">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/adb%E6%B5%8B%E8%AF%95.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog/blog/source_posts/Tcpdump安装与使用过程记录/adb测试.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/push%E6%8A%A5%E9%94%99.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog/blog/source_posts/Tcpdump安装与使用过程记录/push报错.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/ro.debugable.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog/blog/source_posts/Tcpdump安装与使用过程记录/ro.debugable.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/adbroot.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog/blog/source_posts/Tcpdump安装与使用过程记录/adbroot.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/push%E6%88%90%E5%8A%9F.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog/blog/source_posts/Tcpdump安装与使用过程记录/push成功.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/%E6%8A%93%E5%8C%85%E7%A9%BA.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog/blog/source_posts/Tcpdump安装与使用过程记录/抓包空.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/ifconfig.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog/blog/source_posts/Tcpdump安装与使用过程记录/ifconfig.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/wlan0.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog/blog/source_posts/Tcpdump安装与使用过程记录/wlan0.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/pull.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog/blog/source_posts/Tcpdump安装与使用过程记录/pull.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/wirshark.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog/blog/source_posts/Tcpdump安装与使用过程记录/wirshark.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/%E6%95%B0%E6%8D%AE%E5%8C%85.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog/blog/source_posts/Tcpdump安装与使用过程记录/数据包.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/%E6%95%B0%E6%8D%AE%E5%8C%85tcp.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog/blog/source_posts/Tcpdump安装与使用过程记录/数据包tcp.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/%E6%88%90%E5%8A%9F.png">
+<meta property="og:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog/blog/source_posts/Tcpdump安装与使用过程记录/成功.png">
+<meta property="article:published_time" content="2020-11-23T13:16:02.000Z">
+<meta property="article:modified_time" content="2021-03-29T02:07:14.805Z">
+<meta property="article:author" content="lyj789">
+<meta property="article:tag" content="安全 网络 数据库">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/adb%E6%B5%8B%E8%AF%95.png">
+
+<link rel="canonical" href="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Tcpdump安装与使用过程记录 | L1E6N0A2</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">L1E6N0A2</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">监督自己不断学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Tcpdump安装与使用过程记录
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-11-23 21:16:02" itemprop="dateCreated datePublished" datetime="2020-11-23T21:16:02+08:00">2020-11-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-29 10:07:14" itemprop="dateModified" datetime="2021-03-29T10:07:14+08:00">2021-03-29</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="Tcpdump安装与使用过程记录"><a href="#Tcpdump安装与使用过程记录" class="headerlink" title="Tcpdump安装与使用过程记录"></a>Tcpdump安装与使用过程记录</h4><p>为了抓取摄像头与手机app之间的数据包，使用tcpdump进行抓包。</p>
+<p>用简单的话来定义tcpdump，就是：dump the traffic on a  network，根据使用者的定义对网络上的数据包进行截获的包分析工具。 tcpdump可以将网络中传送的数据包的“头”完全截获下来提供分析。它支持针对网络层、协议、主机、网络或端口的过滤，并提供and、or、not等逻辑语句来帮助你去掉无用的信息。</p>
+<a id="more"></a>
+
+<p>首先电脑上下载tcpdump和adb <a target="_blank" rel="noopener" href="https://www.androidtcpdump.com/android-tcpdump/downloads">https://www.androidtcpdump.com/android-tcpdump/downloads</a></p>
+<p>手机连接电脑，记得打开允许USB调试</p>
+<p>adb测试，显示设备：</p>
+<img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/adb%E6%B5%8B%E8%AF%95.png" class title="adb测试">
+
+<p><img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog\blog\source_posts\Tcpdump安装与使用过程记录\adb测试.png" alt="adb测试"></p>
+<p>将 <strong>tcpdump</strong> (for Android)上传至Android手机上</p>
+<p>一直报错，很烦。权限问题。</p>
+<img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/push%E6%8A%A5%E9%94%99.png" class title="push报错">
+
+<p><img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog\blog\source_posts\Tcpdump安装与使用过程记录\push报错.png" alt="push报错"></p>
+<p>试一下adb root都不行，难道root出问题了。</p>
+<p>但是adb shell su可以，因为magisk授予了shell超级用户权限。</p>
+<p>为了解决adb root不通过的问题，百度+谷歌了一天。最后的解决方案是在magisk中安装一个模块（MagiskHide Props Config）执行 <code>props</code>，修改下面两个参数的值。</p>
+<p>（<a target="_blank" rel="noopener" href="http://nigoule.com/?p=580">http://nigoule.com/?p=580</a></p>
+<p>   <a target="_blank" rel="noopener" href="https://github.com/topjohnwu/Magisk/issues/425%EF%BC%89">https://github.com/topjohnwu/Magisk/issues/425）</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ro.debuggable&#x3D;1</span><br><span class="line">ro.secure&#x3D;0</span><br></pre></td></tr></table></figure>
+
+<p>手机翻墙之后就可以直接在magisk的download中下载安装，从网上下载zip包，本地添加模块也可以，注意版本的对应。</p>
+<img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/ro.debugable.png" class title="ro.debugable">
+
+<p><img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog\blog\source_posts\Tcpdump安装与使用过程记录\ro.debugable.png" alt="ro.debugable"></p>
+<p>这样操作之后，adb root就正常了，但是push还是报错！</p>
+<img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/adbroot.png" class title="adbroot">
+
+<p><img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog\blog\source_posts\Tcpdump安装与使用过程记录\adbroot.png" alt="adbroot"></p>
+<p>再次谷歌，将tcpdump首先push 到/sdcard/ 之后mv 到/data/local/ 就ok了。</p>
+<img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/push%E6%88%90%E5%8A%9F.png" class title="push成功">
+
+<p><img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog\blog\source_posts\Tcpdump安装与使用过程记录\push成功.png" alt="push成功"></p>
+<p>下一步就是给/data/local/tcpdump赋权限，chmod -R 777 /data/local/tcpdump</p>
+<p>终于可以抓包了，但是提示dummy0没有IPV4地址，而且一个包没抓到</p>
+<img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/%E6%8A%93%E5%8C%85%E7%A9%BA.png" class title="抓包空">
+
+<p><img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog\blog\source_posts\Tcpdump安装与使用过程记录\抓包空.png" alt="抓包空"></p>
+<p>ifconfig康康网络配置</p>
+<img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/ifconfig.png" class title="ifconfig">
+
+<p><img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog\blog\source_posts\Tcpdump安装与使用过程记录\ifconfig.png" alt="ifconfig"></p>
+<p>只抓wlan0，抓到了。</p>
+<img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/wlan0.png" class title="wlan0">
+
+<p><img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog\blog\source_posts\Tcpdump安装与使用过程记录\wlan0.png" alt="wlan0"></p>
+<p>pull回电脑，用wirshark打开分析就可以了！</p>
+<img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/pull.png" class title="pull">
+
+<p><img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog\blog\source_posts\Tcpdump安装与使用过程记录\pull.png" alt="pull"></p>
+<p>但是wirshark打开之后是空的。</p>
+<img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/wirshark.png" class title="wirshark">
+
+<p><img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog\blog\source_posts\Tcpdump安装与使用过程记录\wirshark.png" alt="wirshark"></p>
+<p>不写入文件直接输出，是有内容的，难道是wirshark的问题吗</p>
+<img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/%E6%95%B0%E6%8D%AE%E5%8C%85.png" class title="数据包">
+
+<p><img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog\blog\source_posts\Tcpdump安装与使用过程记录\数据包.png" alt="数据包"></p>
+<img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/%E6%95%B0%E6%8D%AE%E5%8C%85tcp.png" class title="数据包tcp">
+
+<p><img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog\blog\source_posts\Tcpdump安装与使用过程记录\数据包tcp.png" alt="数据包tcp"></p>
+<p>有三种：正常的，ethertype Unknown，Unknown DSAP</p>
+<p>重新下载一个tcpdump，可以了！</p>
+<img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/%E6%88%90%E5%8A%9F.png" class title="成功">
+
+<p><img src="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/Blog\blog\source_posts\Tcpdump安装与使用过程记录\成功.png" alt="成功"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/19/CryptDB%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/12/07/IoT%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="next" title="IoT安全学习笔记">
+      IoT安全学习笔记 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">Tcpdump安装与使用过程记录</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lyj789</p>
+  <div class="site-description" itemprop="description">快乐打工人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lyj789</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">94k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:25</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

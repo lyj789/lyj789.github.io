@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="PFIREWALL: Semantics-Aware Customizable DataFlow Control for Smart Home Privacy Protection摘要物联网（IoT）平台使用户能够部署家庭自动化应用程序。同时，随着大量敏感设备数据流向IoT平台，隐私问题也随之而来。实际上，流到平台的大多数数据不会触发自动化操作，而一旦将设备绑定到平台，房主目前就无法控制。我们展示">
+<meta property="og:type" content="article">
+<meta property="og:title" content="论文积累02.25">
+<meta property="og:url" content="http://example.com/2021/02/25/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF02-25/index.html">
+<meta property="og:site_name" content="L1E6N0A2">
+<meta property="og:description" content="PFIREWALL: Semantics-Aware Customizable DataFlow Control for Smart Home Privacy Protection摘要物联网（IoT）平台使用户能够部署家庭自动化应用程序。同时，随着大量敏感设备数据流向IoT平台，隐私问题也随之而来。实际上，流到平台的大多数数据不会触发自动化操作，而一旦将设备绑定到平台，房主目前就无法控制。我们展示">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/02/25/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF02-25/%E5%88%86%E7%B1%BB.png">
+<meta property="og:image" content="http://example.com/2021/02/25/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF02-25/Blog/blog/source_posts/论文积累02-25/分类.png">
+<meta property="og:image" content="http://example.com/2021/02/25/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF02-25/%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="http://example.com/2021/02/25/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF02-25/Blog/blog/source_posts/论文积累02-25/结构.png">
+<meta property="article:published_time" content="2021-02-25T01:46:45.000Z">
+<meta property="article:modified_time" content="2021-02-25T12:11:07.213Z">
+<meta property="article:author" content="lyj789">
+<meta property="article:tag" content="IoT">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/02/25/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF02-25/%E5%88%86%E7%B1%BB.png">
+
+<link rel="canonical" href="http://example.com/2021/02/25/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF02-25/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>论文积累02.25 | L1E6N0A2</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">L1E6N0A2</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">监督自己不断学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/25/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF02-25/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          论文积累02.25
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-02-25 09:46:45 / 修改时间：20:11:07" itemprop="dateCreated datePublished" datetime="2021-02-25T09:46:45+08:00">2021-02-25</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="PFIREWALL-Semantics-Aware-Customizable-DataFlow-Control-for-Smart-Home-Privacy-Protection"><a href="#PFIREWALL-Semantics-Aware-Customizable-DataFlow-Control-for-Smart-Home-Privacy-Protection" class="headerlink" title="PFIREWALL: Semantics-Aware Customizable DataFlow Control for Smart Home Privacy Protection"></a>PFIREWALL: Semantics-Aware Customizable DataFlow Control for Smart Home Privacy Protection</h2><h4 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h4><p>物联网（IoT）平台使用户能够部署家庭自动化应用程序。同时，随着大量敏感设备数据流向IoT平台，隐私问题也随之而来。实际上，流到平台的大多数数据不会触发自动化操作，而一旦将设备绑定到平台，房主目前就无法控制。我们展示了PFIREWALL，这是一个可定制的数据流控制系统，可增强IoT平台用户的隐私。<strong>PFIREWALL自动生成数据最小化策略，该策略仅公开最少数量的数据即可实现自动化。此外，PFIRE-WALL为房主提供了接口，可通过定义用户指定的策略来自定义个人隐私首选项。</strong>为了执行这些策略，PFIREWALL透明地干预和调解IoT设备与平台之间的通信，而无需修改平台，IoT设备或集线器。在四个实际测试平台上的评估结果表明，PFIREWALL在不影响家庭自动化的情况下将发送到平台的IoT数据减少了97％，并有效地减轻了用户活动推理/跟踪攻击和其他隐私风险。</p>
+<p>（这篇文章和我们想做的很类似鸭/(ㄒoㄒ)/~~）</p>
+<a id="more"></a>
+
+<h4 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h4><p>尽管平台从绑定的IoT设备接收了大量的隐私敏感数据，但很少有人认为该平台是不可信的并提供隐私保护解决方案。物联网平台收集大量用户信息，物联网平台与合作伙伴（例如，广告商）共享用户数据以扩展业务，任何不当的处理都可能会将对隐私敏感的数据透露给第三方。</p>
+<p>为了支持家庭自动化，许多IoT设备将诸如传感器事件之类的数据连续流式传输到IoT平台，尽管大多数数据实际上并未触发自动化操作（说白了就是获得的数据并没有被使用）。这偏离了欧洲通用数据保护法规（GDPR）中“数据最小化”的原则（中国也有）。我们还发现，用户无法控制设备数据向平台的泄漏，无法实现以用户为中心的授权。（用户处于被动方）因此，我们寻求一种隐私增强系统，以供注重隐私的用户用作现有系统的“附加组件”。（黑盒过滤，只提供必要的信息）</p>
+<ul>
+<li><p>目标：</p>
+<ul>
+<li><p>最小化发送到平台的数据</p>
+<p>此外为用户提供了易于使用的工具来定义和自定义自己的隐私政策</p>
+<p>（例如，“在睡眠模式下，不应从卧室中的设备发送任何数据”）</p>
+</li>
+<li><p>允许用户针对个人隐私首选项定义可定制的数据保护策略。</p>
+</li>
+</ul>
+</li>
+<li><p>挑战</p>
+<ul>
+<li>数据最小化不应影响家庭自动化。（在不影响自动化的情况下减少数据泄漏，不发或者瞎发）</li>
+<li>期望平台协作以实现数据最小化可能是不现实的。但是，大多数领先的平台（IFTTT，SmartThings，Google Home，Amazon Alexa）都采用基于云的架构，这是因为它在存储，集成服务，管理等诸多方面都具有优势。因此，现有用户可能不愿意放弃他们对平台的选择。</li>
+<li>为非专业用户提供用户友好的界面来定义自己的隐私保护政策</li>
+</ul>
+<p>解决：PFIREWALL,介体位于IoT设备与集线器（或平台后端云）之间，可根据隐私保护策略透明地过滤数据。</p>
+</li>
+</ul>
+<h4 id="智能家居云平台"><a href="#智能家居云平台" class="headerlink" title="智能家居云平台"></a>智能家居云平台</h4><p>智能家居平台可分为基于云的平台（CBP）和基于网关/集线器的平台（GBP）根据平台的核心框架是托管在远程云中还是位于家中的网关/集线器设备。 选择基于云的平台，不选择GBP是由于网关连接到Internet，受到平台云管理员的完全控制，不能完全解决隐私泄露威胁。集线器或网关设备虽然物理上位于家中，但在概念上被视为数据隐私保护平台的一部分，因为它受平台云管理员的完全控制。</p>
+<img src="/2021/02/25/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF02-25/%E5%88%86%E7%B1%BB.png" class title="分类">
+
+<p><img src="/2021/02/25/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF02-25/Blog\blog\source_posts\论文积累02-25\分类.png" alt="分类"></p>
+<h4 id="研究动机与威胁模型"><a href="#研究动机与威胁模型" class="headerlink" title="研究动机与威胁模型"></a>研究动机与威胁模型</h4><p><strong>A.平台的隐私问题</strong></p>
+<p>1）在智能家居系统中，平台通常是完全受信任的。安装后，平台将通过声明条款和条件或隐私权政策，通过设计和合法途径从技术上获得对所有已连接家庭物联网设备的访问特权。之后，无论是否需要提供服务，IoT平台都会从连接的设备接收丰富的数据。通过实验验证了上述结论：平台云不断接收来自设备的设备数据（例如，运动，开关，温度等），表明当任何自动化不需要它们时，设备数据都会通过集线器流出。</p>
+<p>在本文中，我们专注于增强家庭自动化服务中的用户隐私，可以改进或修补该系统以增强不同服务中的用户隐私。</p>
+<p>2）有限的用户能力：当前，用户几乎没有能力来控制发送到平台的设备数据。他们只有一个二元选择：是否将设备连接到平台；或者将设备连接到平台；或者将设备连接到平台。连接后，设备会连续向平台报告数据。</p>
+<p><strong>B.威胁模型</strong></p>
+<p>假定该平台是诚实的，即，它忠实地运行所有服务，并且不对用户执行主动攻击。</p>
+<h4 id="系统概述"><a href="#系统概述" class="headerlink" title="系统概述"></a>系统概述</h4><ul>
+<li><p>Device Connector: 设备连接器直接通过设备相关的协议（例如ZigBee，Z-Wave）与IoT设备对话，或通过供应商云API间接与IoT设备对话。之后将原始设备数据转发到基于策略的数据过滤器进行处理。</p>
+</li>
+<li><p>Platform Connector：平台连接器通过平台支持的特定连接技术与平台进行交互，代表连接到设备连接器的物理设备。设备连接器和平台连接器可在IoT设备和平台之间协作地协调数据。</p>
+</li>
+<li><p>Data Filter：基于策略的数据过滤器在设备连接器和平台连接器之间进行过滤，以基于策略过滤来自IoT设备的敏感数据（即事件）。</p>
+</li>
+</ul>
+<p>虽然PFIREWALL在将设备事件报告给平台之前先对其进行过滤，但它不会过滤命令，即平台连接器从平台接收的所有命令都将通过设备连接器转发给物理设备。</p>
+<img src="/2021/02/25/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF02-25/%E7%BB%93%E6%9E%84.png" class title="结构">
+
+<p><img src="/2021/02/25/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF02-25/Blog\blog\source_posts\论文积累02-25\结构.png" alt="结构"></p>
+<h5 id="一、数据过滤器"><a href="#一、数据过滤器" class="headerlink" title="一、数据过滤器"></a>一、数据过滤器</h5><p>它具有三个主要组件：策略生成器，冲突检测器和策略引擎。</p>
+<p>策略生成器以两种方式生成数据过滤策略：自动化相关的数据最小化策略（AP）和用户指定的策略（UP）。</p>
+<p>冲突检测器检查用户指定的策略是否与现有的数据最小化策略发生冲突，并向用户报告冲突。</p>
+<p>策略引擎解释并执行所有策略。</p>
+<p><strong>如何得到最小化策略AP</strong></p>
+<ol>
+<li>自动化规则提取</li>
+</ol>
+<p>R1: “when [trigger], if [condition], then [action]“</p>
+<blockquote>
+<p>eg:when [a presence sensorps1becomes present] (trigger), if [the readingof a temperature sensorts1 is higher than 86◦F] (condition),then [turn on the fanf1] (action).</p>
+</blockquote>
+<p>R2: “when  [trigger],  then  [action]”</p>
+<blockquote>
+<p>eg: when [ the  reading  of  a  temperature  sensorts1is higher than 86◦F], then [turn on the fanf1]</p>
+</blockquote>
+<p>不失一般性，我们将使用ruleR1作为运行示例来展示PFIREWALL如何过滤数据</p>
+<p>代码分析是从物联网应用程序中提取规则语义的有效方法。例如，通过在SmartApps上使用抽象语法树分析，可以识别SmartApps中请求和使用的功能，细分SmartApps和提取规则信息，]从SmartApps构建确定性有限自动机（DFA）。符号执行是一种从应用程序分析规则语义的强大技术。文本数据爬网和自然语言处理已用于从移动应用程序和网页中提取规则。（利用这篇文章中的策略提取方式：“Cross-app interference threats in smart homes: Categorization, detection and handling” 从SmartThings经典版本中提取规则，并对新的SmartThings和openHAB中定义的规则进行手动编码 ）</p>
+<ol start="2">
+<li>生成最小规则策略</li>
+</ol>
+<p>P=(T,C)：T代表TRIGGER；C代表CHECK</p>
+<p><strong>用户自定义隐私规则</strong></p>
+<p>我们建议用户使用交互式方法来指定数据保护策略。用户可以在指定的时间段内或在某些上下文中配置白名单，黑名单和条件式策略。这是出于以下三个原因：1）用户具有无法从自动化规则中得出的个人隐私首选项；例如，在一段时间或某些情况下，用户可能会优先考虑某些设备类型的隐私而不是自动化功能； 2）该平台可以集成第三方服务，但是没有规则提取器可用于从中提取语义；3）用户有权控制自己数据的使用。</p>
+<p><strong>规则冲突策略</strong></p>
+<p>由于UP的优先级高于AP，因此UP被设计为覆盖AP，用户的UP可能与现有的AP发生冲突并阻碍自动化。尽管如此，用户仍需要一个警告，向他们显示导致什么冲突以及哪些自动化规则受到影响的警告。因此，需要自动的策略冲突检测。</p>
+<h5 id="二、数据流中介"><a href="#二、数据流中介" class="headerlink" title="二、数据流中介"></a>二、数据流中介</h5><p>当前，PFIREWALL无法处理使用专有或端到端加密连接但不提供访问API的IoT设备。</p>
+<p>连接物联网设备：中介需要处理与IoT设备相关的3个主要任务：1）在PFIREWALL中添加或删除设备； 2）从设备接收事件； 3）向设备发送命令。</p>
+<p>连接各种平台：将物理设备连接到PFIREWALL时，平台连接器会为其创建虚拟设备的实例。虚拟设备代表物理设备与平台进行交互，即，虚拟设备（1）被平台发现为新设备实例，（2）向平台报告后过滤事件，并且（3）从虚拟设备转发命令。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/IoT/" rel="tag"># IoT</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/" rel="prev" title="CTF基础知识之模糊测试">
+      <i class="fa fa-chevron-left"></i> CTF基础知识之模糊测试
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/02/26/IoT%E8%AE%BE%E5%A4%87%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B/" rel="next" title="IoT设备流量分析流程">
+      IoT设备流量分析流程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#PFIREWALL-Semantics-Aware-Customizable-DataFlow-Control-for-Smart-Home-Privacy-Protection"><span class="nav-number">1.</span> <span class="nav-text">PFIREWALL: Semantics-Aware Customizable DataFlow Control for Smart Home Privacy Protection</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">1.0.1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Introduction"><span class="nav-number">1.0.2.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%99%BA%E8%83%BD%E5%AE%B6%E5%B1%85%E4%BA%91%E5%B9%B3%E5%8F%B0"><span class="nav-number">1.0.3.</span> <span class="nav-text">智能家居云平台</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A0%94%E7%A9%B6%E5%8A%A8%E6%9C%BA%E4%B8%8E%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.0.4.</span> <span class="nav-text">研究动机与威胁模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">1.0.5.</span> <span class="nav-text">系统概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%95%B0%E6%8D%AE%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">1.0.5.1.</span> <span class="nav-text">一、数据过滤器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E4%BB%8B"><span class="nav-number">1.0.5.2.</span> <span class="nav-text">二、数据流中介</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lyj789</p>
+  <div class="site-description" itemprop="description">快乐打工人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lyj789</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">94k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:25</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

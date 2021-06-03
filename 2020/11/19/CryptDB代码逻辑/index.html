@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="一、代码逻辑1、cdb_test.cc —-main() cdb_test.cc—-handle_line() cdb_test.cc—-add_history() cdb_test.cc—-q.find(“:load”)(判断输入的语句是否是包含load，从文件中加载指令，否) cdb_test.cc—-Schema_Cache  getDefaultDatabaseForConnection(">
+<meta property="og:type" content="article">
+<meta property="og:title" content="L1E6N0A2">
+<meta property="og:url" content="http://example.com/2020/11/19/CryptDB%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91/index.html">
+<meta property="og:site_name" content="L1E6N0A2">
+<meta property="og:description" content="一、代码逻辑1、cdb_test.cc —-main() cdb_test.cc—-handle_line() cdb_test.cc—-add_history() cdb_test.cc—-q.find(“:load”)(判断输入的语句是否是包含load，从文件中加载指令，否) cdb_test.cc—-Schema_Cache  getDefaultDatabaseForConnection(">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2020/11/19/CryptDB%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91/Users/dell/AppData/Roaming/Typora/typora-user-images/1561944267772.png">
+<meta property="og:image" content="http://example.com/2020/11/19/CryptDB%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91/Users/dell/AppData/Roaming/Typora/typora-user-images/1561863787080.png">
+<meta property="og:image" content="https://yiwenshao.github.io/blogGraph/project/cryptdb/3/classEncLayer.png">
+<meta property="article:published_time" content="2020-11-19T06:11:22.754Z">
+<meta property="article:modified_time" content="2020-11-19T06:11:24.371Z">
+<meta property="article:author" content="lyj789">
+<meta property="article:tag" content="安全 网络 数据库">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2020/11/19/CryptDB%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91/Users/dell/AppData/Roaming/Typora/typora-user-images/1561944267772.png">
+
+<link rel="canonical" href="http://example.com/2020/11/19/CryptDB%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | L1E6N0A2</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">L1E6N0A2</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">监督自己不断学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/19/CryptDB%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-11-19 14:11:22 / 修改时间：14:11:24" itemprop="dateCreated datePublished" datetime="2020-11-19T14:11:22+08:00">2020-11-19</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>8.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>8 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、代码逻辑"><a href="#一、代码逻辑" class="headerlink" title="一、代码逻辑"></a>一、代码逻辑</h2><h2 id="1、cdb-test-cc-—-main"><a href="#1、cdb-test-cc-—-main" class="headerlink" title="1、cdb_test.cc —-main()"></a>1、cdb_test.cc —-main()</h2><ul>
+<li>cdb_test.cc—-<strong>handle_line()</strong></li>
+<li>cdb_test.cc—-add_history()</li>
+<li>cdb_test.cc—-q.find(“:load”)(判断输入的语句是否是包含load，从文件中加载指令，否)</li>
+<li><strong>cdb_test.cc—-Schema_Cache</strong></li>
+<li><ul>
+<li><strong>getDefaultDatabaseForConnection(建立连接)</strong></li>
+<li><strong>executeQuery</strong></li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> bool <span class="title">handle_line</span><span class="params">(ProxyState&amp; ps, <span class="keyword">const</span> std::string&amp; q, bool pp=<span class="keyword">true</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (q == <span class="string">&quot;\\q&quot;</span>) &#123;</span><br><span class="line">    std::cerr &lt;&lt; <span class="string">&quot;Goodbye!\n&quot;</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  add_history(q.c_str());</span><br><span class="line"></span><br><span class="line">  <span class="comment">// handle meta inputs 以:load name 标志从文件输入</span></span><br><span class="line">  <span class="keyword">if</span> (q.find(<span class="string">&quot;:load&quot;</span>) == <span class="number">0</span>) &#123;</span><br><span class="line"> 	<span class="comment">//从文件中读取SQl语句</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> SchemaCache schema_cache;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> std::string &amp;default_db =</span><br><span class="line">          getDefaultDatabaseForConnection(ps.getConn());</span><br><span class="line"></span><br><span class="line">      std::cout &lt;&lt; <span class="string">&quot;在函数handle_line中\ndefault_db: &quot;</span> + default_db &lt;&lt; std::endl;</span><br><span class="line">      <span class="keyword">const</span> EpilogueResult &amp;epi_result =executeQuery(ps, q, default_db, &amp;schema_cache, pp);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="2、rewrite-main-cc—-executeQuery"><a href="#2、rewrite-main-cc—-executeQuery" class="headerlink" title="2、rewrite_main.cc—-executeQuery"></a>2、rewrite_main.cc—-executeQuery</h2><p>参数：const ProxyState &amp;ps, const std::string &amp;q,const std::string &amp;default_db，SchemaCache *const schema_cache, bool pp（SQl语句重写，执行，获得结果）</p>
+<ul>
+<li><p>assert（schema_cache)</p>
+</li>
+<li><p><strong>queryPreamble（ps, q, &amp;qr, &amp;out_queryz, schema_cache, default_db)</strong></p>
+</li>
+</ul>
+<h2 id="3、rewrite-util-cc—-queryPreamble"><a href="#3、rewrite-util-cc—-queryPreamble" class="headerlink" title="3、rewrite_util.cc—-queryPreamble"></a>3、rewrite_util.cc—-queryPreamble</h2><p>rewrite类存储重写之后的SQl语句或解密后的结果，通过调用Rewriter::rewrite函数对SQL语句重写，再创建一个QueryRewrite对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*qr = std::unique_ptr\&lt;QueryRewrite&gt;( <span class="keyword">new</span> QueryRewrite(Rewriter::rewrite(ps, q, schema, default_db)));</span><br></pre></td></tr></table></figure>
+
+<h2 id="4、rewrite-main-cc—-Rewriter-rewrite"><a href="#4、rewrite-main-cc—-Rewriter-rewrite" class="headerlink" title="4、rewrite_main.cc—-Rewriter::rewrite"></a>4、rewrite_main.cc—-Rewriter::rewrite</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (cryptdbDirective(q)) &#123; <span class="comment">// 不需要进行重写</span></span><br><span class="line">    output = Rewriter::handleDirective(analysis, ps, q);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    output = Rewriter::dispatchOnLex(analysis, ps, q); <span class="comment">// 进行重写</span></span><br><span class="line">    <span class="keyword">if</span> (!output) &#123;</span><br><span class="line">        output = <span class="keyword">new</span> SimpleOutput(mysql_noop());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用dispatchOnLex进行重写</p>
+<h2 id="5、rewrite-main-cc—-Rewriter-dispatchOnLex"><a href="#5、rewrite-main-cc—-Rewriter-dispatchOnLex" class="headerlink" title="5、rewrite_main.cc—-Rewriter::dispatchOnLex"></a>5、rewrite_main.cc—-Rewriter::dispatchOnLex</h2><ul>
+<li><p>analysis.hh—-getDatabaseName(return db_name:db)</p>
+</li>
+<li><p>new query_parse(a.getdatabasename(),query)</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (noRewrite(*lex))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> SimpleOutput(query);<span class="comment">//不重写</span></span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (dml_dispatcher-&gt;canDo(lex))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">const</span> SQLHandler &amp;handler = dml_dispatcher-&gt;dispatch(lex);</span><br><span class="line">    AssignOnce&lt;LEX *&gt; out_lex;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (ddl_dispatcher-&gt;canDo(lex))</span><br><span class="line">&#123;</span><br><span class="line"> 	<span class="keyword">const</span> SQLHandler &amp;handler = ddl_dispatcher-&gt;dispatch(lex);</span><br><span class="line">    LEX *<span class="keyword">const</span> out_lex = handler.transformLex(a, lex, ps);</span><br><span class="line">        <span class="comment">// HACK.</span></span><br><span class="line">    <span class="keyword">const</span> std::string &amp;original_query =</span><br><span class="line">        lex-&gt;sql_command != SQLCOM_LOCK_TABLES ? query : <span class="string">&quot;do 0&quot;</span>;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span>      DDLOutput(original_query,lex_to_query(out_lex),std::move(a.deltas));</span><br><span class="line">    &#125; </span><br><span class="line"><span class="keyword">else</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> NULL;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>分dml，ddl和不重写三种类型，Dispatcher根据lex的结构，为SQL语句分配handler，不同类型的SQL语句有不同的handler，用来处理sql语句的加密。加密以后的结果则放置在executor中.</p>
+<p><img src="/2020/11/19/CryptDB%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91/Users\dell\AppData\Roaming\Typora\typora-user-images\1561944267772.png" alt="1561944267772">例子是create 是ddl，</p>
+<ul>
+<li>transformLex时跳转到<strong>ddl_handler.cc—-transformLex</strong></li>
+</ul>
+<p>（return this-&gt;<strong>rewriteAndUpdate</strong>(a, lex, ps);rewriteandupdata很复杂 最后return new lex</p>
+<ul>
+<li>DDLOutput(original_query,lex_to_query(out_lex),std::move(a.deltas));这里又跳转到<strong>rewrite_main.cc—-lex_to_query</strong>，输出语句</li>
+</ul>
+<p>ddl系列类型的典型处理流程包含了两部分，一是对SQL语句进行加密，二是以delta类来基于数据库的变化，这个delta在next阶段会写入到本地的embedded数据库中。例如CREATE TABLE语句，delta需要记录添加的表的名字， 表有多少列，每列分别采用什么样的加密算法。这些功能全都实现在rewriteAndUpdate函数中了。</p>
+<p>DMLhandler:在transformlext函数内部，包含了gather和rewrite两个函数，首先获得rewrite plain，然后根据rewrite plain多lex的内部成员进行改写，最后返回的executor，这里的executor类型是ShowTableExecutor。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> LEX *DMLHandler::transformLex(Analysis &amp;analysis, LEX *lex,</span><br><span class="line">                               <span class="keyword">const</span> ProxyState &amp;ps) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>-&gt;gather(analysis, lex, ps);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>-&gt;rewrite(analysis, lex, ps);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>gather函数：process_select_lex</li>
+<li>rewrite函数：从fieldmeta到valuemeta</li>
+</ul>
+<h3 id="至此4的rewrite全过程调用完毕，回到3，继续rewrite-util-cc—queryPreamble"><a href="#至此4的rewrite全过程调用完毕，回到3，继续rewrite-util-cc—queryPreamble" class="headerlink" title="至此4的rewrite全过程调用完毕，回到3，继续rewrite_util.cc—queryPreamble"></a>至此4的rewrite全过程调用完毕，回到3，继续rewrite_util.cc—queryPreamble</h3><ul>
+<li>updatastaleness</li>
+<li>usesembeddedDB</li>
+<li>beforeQuery</li>
+<li>getQuery(将重写结果从*qr存入out_queryz中)</li>
+</ul>
+<h3 id="至此3的queryPreamble全过程调用完毕，回到2，继续rewrite-main-cc—-executeQuery"><a href="#至此3的queryPreamble全过程调用完毕，回到2，继续rewrite-main-cc—-executeQuery" class="headerlink" title="至此3的queryPreamble全过程调用完毕，回到2，继续rewrite_main.cc—-executeQuery"></a>至此3的queryPreamble全过程调用完毕，回到2，继续rewrite_main.cc—-executeQuery</h3><ul>
+<li>assert（qr）</li>
+<li>循环判断SQL语句是否为对数据库进行变更，新建或是删除，如果是就新建一个连接</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (auto it : out_queryz) &#123;</span><br><span class="line">       <span class="keyword">if</span> (<span class="keyword">true</span> == pp) &#123;</span><br><span class="line">           prettyPrintQuery(it); <span class="comment">// 输出重写后的SQL语句，以QUERY:为标识</span></span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">if</span> ((strncmp(toLowerCase(it).c_str(), <span class="string">&quot;use&quot;</span>, <span class="number">3</span>) == <span class="number">0</span>) ||</span><br><span class="line">       		(strncmp(toLowerCase(it).c_str(), <span class="string">&quot;create database&quot;</span>, <span class="number">15</span>) == <span class="number">0</span>) ||</span><br><span class="line">       		(strncmp(toLowerCase(it).c_str(), <span class="string">&quot;drop database&quot;</span>, <span class="number">13</span>) == <span class="number">0</span>)</span><br><span class="line">       		) &#123;</span><br><span class="line">       	std::cout &lt;&lt; <span class="string">&quot;SQL语句执行: &quot;</span> + it &lt;&lt; std::endl;</span><br><span class="line">       	TEST_Sync(ps.getConn()-&gt;execute(it, &amp;dbres,</span><br><span class="line">       	                                    qr-&gt;output-&gt;multipleResultSets()),</span><br><span class="line">       	                  <span class="string">&quot;failed to execute query!&quot;</span>);</span><br><span class="line">       &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>本例子中最后输出三个</p>
+<blockquote>
+<p>INSERT INTO remote_db.generic_prefix_remoteQueryCompletion   (begin, complete, embedded_completion_id, reissue) VALUES   (TRUE,  FALSE,167    , FALSE);</p>
+<p>create table table_VXRNZIQJSE (WXFOYISCAJoDET BIGINT(8) unsigned, QXGKNHUDRPoOPE BIGINT(11) unsigned, KAQHLORKVDoAGG VARBINARY(256), cdb_saltHBVIVJZHMR BIGINT(8) unsigned not null) ENGINE=InnoDB</p>
+<p>UPDATE remote_db.generic_prefix_remoteQueryCompletion    SET complete = TRUE  WHERE embedded_completion_id = 167;</p>
+</blockquote>
+<ul>
+<li>assert(res.successs())  进行解密以及输出解密之后的结果</li>
+<li>pi_result =queryEpilogue(ps, *qr.get(), res, q, default_db, pp);</li>
+<li>assert(epi_result.res_type.success());</li>
+</ul>
+<p>最后返回epi_result</p>
+<h3 id="至此2的executeQuery全过程调用完毕，实现了语句的重写与执行，以及结果的解密，回到1，继续cdb-test-cc-—-main"><a href="#至此2的executeQuery全过程调用完毕，实现了语句的重写与执行，以及结果的解密，回到1，继续cdb-test-cc-—-main" class="headerlink" title="至此2的executeQuery全过程调用完毕，实现了语句的重写与执行，以及结果的解密，回到1，继续cdb_test.cc —-main()"></a>至此2的executeQuery全过程调用完毕，实现了语句的重写与执行，以及结果的解密，回到1，继续cdb_test.cc —-main()</h3><ul>
+<li><strong>EpilogueResult</strong></li>
+</ul>
+<h2 id="二、元数据存储"><a href="#二、元数据存储" class="headerlink" title="二、元数据存储"></a>二、元数据存储</h2><p>SchemaCache是对SchemaInfo进行的简单封装，SchemaInfo继承了MappedDBMeta，通过Key-Value的形式保存了当前CryptDB中创建了的所有数据库信息。</p>
+<p><img src="/2020/11/19/CryptDB%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91/Users\dell\AppData\Roaming\Typora\typora-user-images\1561863787080.png" alt="1561863787080"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SchemaCache</span> </span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    SchemaCache() : no_loads(<span class="keyword">true</span>), id(randomValue() % UINT_MAX) &#123;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> SchemaInfo &amp;getSchema(<span class="keyword">const</span> std::unique_ptr&lt;Connect&gt; &amp;conn,</span><br><span class="line">                            <span class="keyword">const</span> std::unique_ptr&lt;Connect&gt; &amp;e_conn);</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">updateStaleness</span><span class="params">(<span class="keyword">const</span> std::unique_ptr&lt;Connect&gt; &amp;e_conn,</span></span></span><br><span class="line"><span class="function"><span class="params">                     bool staleness)</span></span>;</span><br><span class="line"><span class="function">bool <span class="title">initialStaleness</span><span class="params">(<span class="keyword">const</span> std::unique_ptr&lt;Connect&gt; &amp;e_conn)</span></span>;</span><br><span class="line"><span class="function">bool <span class="title">cleanupStaleness</span><span class="params">(<span class="keyword">const</span> std::unique_ptr&lt;Connect&gt; &amp;e_conn)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">lowLevelCurrentStale</span><span class="params">(<span class="keyword">const</span> std::unique_ptr&lt;Connect&gt; &amp;e_conn)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">lowLevelCurrentUnstale</span><span class="params">(<span class="keyword">const</span> std::unique_ptr&lt;Connect&gt; &amp;e_conn)</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::unique_ptr&lt;<span class="keyword">const</span> SchemaInfo&gt; schema;</span><br><span class="line">    bool no_loads;          <span class="comment">//设置state状态</span></span><br><span class="line">    <span class="keyword">const</span> unsigned <span class="keyword">int</span> id;  <span class="comment">//随机ID</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>首先就是获得一个id随机的SchemaCache结构，内部包含了一个空的SchemaInfo成员。如果之前已经建立了数据库，或者数据库下已经有一些表，则需要读取embedded MySQL中的元数据，<strong>反序列化</strong>，用内存的数据结构来表示。</p>
+<h2 id="三、加密算法相关"><a href="#三、加密算法相关" class="headerlink" title="三、加密算法相关"></a>三、加密算法相关</h2><h4 id="加密层——util-onions-hh"><a href="#加密层——util-onions-hh" class="headerlink" title="加密层——util/onions.hh"></a>加密层——util/onions.hh</h4><ul>
+<li>通过枚举类型表示各种加密类型</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">typedef <span class="class"><span class="keyword">enum</span> <span class="title">onion</span> </span>&#123;</span><br><span class="line">    oDET,</span><br><span class="line">    oOPE,</span><br><span class="line">    oAGG,</span><br><span class="line">    oSWP,</span><br><span class="line">    oPLAIN,</span><br><span class="line">    oBESTEFFORT,</span><br><span class="line">    oINVALID,</span><br><span class="line">&#125; onion;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">class</span> <span class="title">SECLEVEL</span> </span>&#123;</span><br><span class="line">    INVALID,</span><br><span class="line">    PLAINVAL,</span><br><span class="line">    OPE,</span><br><span class="line">    DETJOIN,</span><br><span class="line">    DET,</span><br><span class="line">    SEARCH,</span><br><span class="line">    HOM,</span><br><span class="line">    RND,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>第一块的一种加密方案，要用下面的多种算法洋葱加密，安全性越低的算法，越早加密。最外层基本都是RND。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> onionlayout STR_ONION_LAYOUT = &#123;</span><br><span class="line">    &#123;oDET, std::vector&lt;SECLEVEL&gt;(&#123;SECLEVEL::DETJOIN, SECLEVEL::DET,</span><br><span class="line">                                  SECLEVEL::RND&#125;)&#125;,</span><br><span class="line">    &#123;oOPE, std::vector&lt;SECLEVEL&gt;(&#123;SECLEVEL::OPE, SECLEVEL::RND&#125;)&#125;,</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="加密层的实现——main-CryptoHandlers-hh"><a href="#加密层的实现——main-CryptoHandlers-hh" class="headerlink" title="加密层的实现——main/CryptoHandlers.hh"></a>加密层的实现——main/CryptoHandlers.hh</h4><ul>
+<li>Enclayer层继承自LeafDBMeta，定义了newCreateField，encrypt，decrypt，decryptUDF函数，其中decryrptUDF函数用来调整洋葱层结构。</li>
+<li>具体的加密算法的实现继承Enclayer：HOM，SEARCH等等</li>
+</ul>
+<h4 id="加密层的管理——main-CryptoHandlers-cc"><a href="#加密层的管理——main-CryptoHandlers-cc" class="headerlink" title="加密层的管理——main/CryptoHandlers.cc"></a>加密层的管理——main/CryptoHandlers.cc</h4><ul>
+<li><p>加密层的创建依靠LayerFactory结构，不同的加密层有自己的factory。而这些factory又通过EncLayerFactory类来实现管理。LayerFactory系列的类，主要提供了create和deserialize函数，前者用于在内存中直接创建加密层，后者用于对磁盘读取的数据做反序列化来创建加密层</p>
+<blockquote>
+<p> - RNDFactory: outputs a RND layer</p>
+<p>​         - RND layers: RND_int for blowfish, RND_str for AES</p>
+<p>​    -DETFactory: outputs a DET layer</p>
+<p>​         - DET layers: DET_int, DET_str</p>
+<p>​    -OPEFactory: outputs a OPE layer</p>
+<p>​         - OPE layers: OPE_int, OPE_str, OPE_dec</p>
+<p>​    -HOMFactory: outputs a HOM layer</p>
+<p>​         - HOM layers: HOM (for integers), HOM_dec (for decimals)</p>
+</blockquote>
+</li>
+<li><p>其他helper包括序列化helper，Factory implementions和其他（prng_pad）</p>
+</li>
+</ul>
+<p><img src="https://yiwenshao.github.io/blogGraph/project/cryptdb/3/classEncLayer.png" alt="img"></p>
+<ul>
+<li><p>serialize函数实现了加密层的序列化</p>
+</li>
+<li><p>反序列化功能在LayerFactory管理类中实现</p>
+</li>
+<li><p>加解密函数encrypt和decrypt，是对上面介绍的crypto目录中的底层库的封装。由于这里处理的都是item类型，所以需要进行item类型和普通数据类型的互相转换</p>
+</li>
+<li><p>decryptUDF用于返回一个UDF函数，做洋葱层次调整。</p>
+<p>decryptUDF函数用于洋葱层次的调整。举例来说，当一个查询需要使用where xx=xx的条件时，需要使用洋葱层次DET，而如果此时洋葱的实际层次是RND，则需要在MySQL端执行解密函数，剥掉RND层。这个操作通过UDF来完成，而decryptUDF就是用来生成这个UDF语句的。</p>
+</li>
+<li><p>newCreateField用来处理加密带来的数据类型的变化。比如原来是整数类型，经过了Pailliar的加密，就变成了二进制字符串类型。</p>
+<p>newCreateField函数是为了处理数据类型的变化：数据经过加密算法的处理，其数据类型和数据长度会发生变化，加密层的newCreateField要能够返回加密以后的数据类型。这种类型的信息封装在Create_field类里面了，这也是MySQL的parser中定义的类，具体细节不在此展开。</p>
+</li>
+</ul>
+<p><strong>CryptDB需要对MySQL的parser中的LEX结构中的Item类型做加密，底层加密库不能直接处理Item，所以在EncLayer中要做一个封装，这部分的内容主要实现在main/CryptoHandlers.cc，用于处理数据类型的转化。此外，EncLayer还需要处理序列化，UDF返回等功能。为了辅助加密层类型的使用，设计了LayerFactory系列的类，用于构造加密层类，这个构造分为普通构造和反序列化构造。这些factory类又通过EncLayerFactory类型来进行统一管理。通过这些机制，底层的加密库就和CryptDB的实现连接起来了，CryptDB会调用封装好的EncLayer，而不直接使用底层的加密库。</strong></p>
+<h2 id="四、元数据管理结构"><a href="#四、元数据管理结构" class="headerlink" title="四、元数据管理结构"></a>四、元数据管理结构</h2><h4 id="数据库与其中的表——DatabaseMeta，通过std-map类型保存"><a href="#数据库与其中的表——DatabaseMeta，通过std-map类型保存" class="headerlink" title="数据库与其中的表——DatabaseMeta，通过std:map类型保存"></a>数据库与其中的表——DatabaseMeta，通过std:map类型保存</h4><p>（map中的key是对IdentityMetaKey类型，是对table1的封装，value是TableMeta类型，代表一个表的元数据）</p>
+<p>在CryptDB中，每个明文的表名都被替换成了密文的表名。其中明文的表名被封装成了<strong>IdentityMetaKey</strong>，存储在DatabaseMeta内部的Map中作为key，加密替换以后的表名则存储在<strong>TableMeta</strong>中的成员<strong>anon_table_name</strong>中。这样，在通过明文的表名做Key，找到对应的TableMeta类型的value时，可以从其类成员anno_table_name得到加密的表名。明文和密文的对应关系就是这样存储的。</p>
+<h4 id="表与其中对应的列——TableMeta"><a href="#表与其中对应的列——TableMeta" class="headerlink" title="表与其中对应的列——TableMeta"></a>表与其中对应的列——TableMeta</h4><p>counter，每次加一，记录每一列的顺序，传递到新建的FieldMeta结构中，这样一个TableMeta下的FieldMeta就可以根据这个counter的值进行排序了。</p>
+<h4 id="每一个原始列对应多个洋葱层列——FieldMeta中的onion-layout"><a href="#每一个原始列对应多个洋葱层列——FieldMeta中的onion-layout" class="headerlink" title="每一个原始列对应多个洋葱层列——FieldMeta中的onion_layout"></a>每一个原始列对应多个洋葱层列——FieldMeta中的onion_layout</h4><p>Field每部包含多个洋葱加密模型，每个洋葱代表了加密表中的一个列，洋葱层也有顺序</p>
+<p>onion_layout是一个map结构，key是洋葱类型，value是一个vector，表示洋葱的各个层次。</p>
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">onionlayout NUM_ONION_LAYOUT = &#123;</span><br><span class="line">    &#123;oDET, std::vector&lt;SECLEVEL&gt;(&#123;SECLEVEL::DETJOIN, SECLEVEL::DET,</span><br><span class="line">                                  SECLEVEL::RND&#125;)&#125;,</span><br><span class="line">    &#123;oOPE, std::vector&lt;SECLEVEL&gt;(&#123;SECLEVEL::OPE, SECLEVEL::RND&#125;)&#125;,</span><br><span class="line">    &#123;oAGG, std::vector&lt;SECLEVEL&gt;(&#123;SECLEVEL::HOM&#125;)&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="与下一层Enclayer的对应——OnionMeta中的std-vector"><a href="#与下一层Enclayer的对应——OnionMeta中的std-vector" class="headerlink" title="与下一层Enclayer的对应——OnionMeta中的std:vector"></a>与下一层Enclayer的对应——OnionMeta中的std:vector</h4><p>没有map，直接继承DBMeta。</p>
+<p>OnionMeta代表了一个洋葱。在CryptDB中，一个洋葱有很多的层次，每个层次代表一次加密，原始列的数据被这个洋葱中的多个层次依次进行加密。加密以后的列有列名，通过这里的onionname成员来记录。uniq_count成员则是用于onionmeta的排序，之前已经做过介绍。layers成员是通过vector类型来对加密层次进行记录。序列化和反序列化的函数和前面的类似，这里不再给出。</p>
+<h4 id="最后的Enclayer"><a href="#最后的Enclayer" class="headerlink" title="最后的Enclayer"></a>最后的Enclayer</h4><p>EncLayer代表了一个加密层次的抽象，所以其首先应该有加密和解密函数，用于对数据做加解密。在这个层次，数据的加解密的对象是<strong>Item</strong>，这是一个MySQL的parser中定义的类型，代表了解析以后的SQL语句的语法树中的一个节点。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/17/%E5%AE%89%E5%8D%93%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89hook%E4%B8%8Exposed/" rel="prev" title="安卓逆向学习（一）hook与xposed">
+      <i class="fa fa-chevron-left"></i> 安卓逆向学习（一）hook与xposed
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/11/23/Tcpdump%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" rel="next" title="Tcpdump安装与使用过程记录">
+      Tcpdump安装与使用过程记录 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91"><span class="nav-number">1.</span> <span class="nav-text">一、代码逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E3%80%81cdb-test-cc-%E2%80%94-main"><span class="nav-number">2.</span> <span class="nav-text">1、cdb_test.cc —-main()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81rewrite-main-cc%E2%80%94-executeQuery"><span class="nav-number">3.</span> <span class="nav-text">2、rewrite_main.cc—-executeQuery</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3%E3%80%81rewrite-util-cc%E2%80%94-queryPreamble"><span class="nav-number">4.</span> <span class="nav-text">3、rewrite_util.cc—-queryPreamble</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4%E3%80%81rewrite-main-cc%E2%80%94-Rewriter-rewrite"><span class="nav-number">5.</span> <span class="nav-text">4、rewrite_main.cc—-Rewriter::rewrite</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5%E3%80%81rewrite-main-cc%E2%80%94-Rewriter-dispatchOnLex"><span class="nav-number">6.</span> <span class="nav-text">5、rewrite_main.cc—-Rewriter::dispatchOnLex</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%B3%E6%AD%A44%E7%9A%84rewrite%E5%85%A8%E8%BF%87%E7%A8%8B%E8%B0%83%E7%94%A8%E5%AE%8C%E6%AF%95%EF%BC%8C%E5%9B%9E%E5%88%B03%EF%BC%8C%E7%BB%A7%E7%BB%ADrewrite-util-cc%E2%80%94queryPreamble"><span class="nav-number">6.1.</span> <span class="nav-text">至此4的rewrite全过程调用完毕，回到3，继续rewrite_util.cc—queryPreamble</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%B3%E6%AD%A43%E7%9A%84queryPreamble%E5%85%A8%E8%BF%87%E7%A8%8B%E8%B0%83%E7%94%A8%E5%AE%8C%E6%AF%95%EF%BC%8C%E5%9B%9E%E5%88%B02%EF%BC%8C%E7%BB%A7%E7%BB%ADrewrite-main-cc%E2%80%94-executeQuery"><span class="nav-number">6.2.</span> <span class="nav-text">至此3的queryPreamble全过程调用完毕，回到2，继续rewrite_main.cc—-executeQuery</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%B3%E6%AD%A42%E7%9A%84executeQuery%E5%85%A8%E8%BF%87%E7%A8%8B%E8%B0%83%E7%94%A8%E5%AE%8C%E6%AF%95%EF%BC%8C%E5%AE%9E%E7%8E%B0%E4%BA%86%E8%AF%AD%E5%8F%A5%E7%9A%84%E9%87%8D%E5%86%99%E4%B8%8E%E6%89%A7%E8%A1%8C%EF%BC%8C%E4%BB%A5%E5%8F%8A%E7%BB%93%E6%9E%9C%E7%9A%84%E8%A7%A3%E5%AF%86%EF%BC%8C%E5%9B%9E%E5%88%B01%EF%BC%8C%E7%BB%A7%E7%BB%ADcdb-test-cc-%E2%80%94-main"><span class="nav-number">6.3.</span> <span class="nav-text">至此2的executeQuery全过程调用完毕，实现了语句的重写与执行，以及结果的解密，回到1，继续cdb_test.cc —-main()</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%85%83%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8"><span class="nav-number">7.</span> <span class="nav-text">二、元数据存储</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E7%9B%B8%E5%85%B3"><span class="nav-number">8.</span> <span class="nav-text">三、加密算法相关</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E5%B1%82%E2%80%94%E2%80%94util-onions-hh"><span class="nav-number">8.0.1.</span> <span class="nav-text">加密层——util&#x2F;onions.hh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E5%B1%82%E7%9A%84%E5%AE%9E%E7%8E%B0%E2%80%94%E2%80%94main-CryptoHandlers-hh"><span class="nav-number">8.0.2.</span> <span class="nav-text">加密层的实现——main&#x2F;CryptoHandlers.hh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E5%B1%82%E7%9A%84%E7%AE%A1%E7%90%86%E2%80%94%E2%80%94main-CryptoHandlers-cc"><span class="nav-number">8.0.3.</span> <span class="nav-text">加密层的管理——main&#x2F;CryptoHandlers.cc</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%85%83%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86%E7%BB%93%E6%9E%84"><span class="nav-number">9.</span> <span class="nav-text">四、元数据管理结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E5%85%B6%E4%B8%AD%E7%9A%84%E8%A1%A8%E2%80%94%E2%80%94DatabaseMeta%EF%BC%8C%E9%80%9A%E8%BF%87std-map%E7%B1%BB%E5%9E%8B%E4%BF%9D%E5%AD%98"><span class="nav-number">9.0.1.</span> <span class="nav-text">数据库与其中的表——DatabaseMeta，通过std:map类型保存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A1%A8%E4%B8%8E%E5%85%B6%E4%B8%AD%E5%AF%B9%E5%BA%94%E7%9A%84%E5%88%97%E2%80%94%E2%80%94TableMeta"><span class="nav-number">9.0.2.</span> <span class="nav-text">表与其中对应的列——TableMeta</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AF%8F%E4%B8%80%E4%B8%AA%E5%8E%9F%E5%A7%8B%E5%88%97%E5%AF%B9%E5%BA%94%E5%A4%9A%E4%B8%AA%E6%B4%8B%E8%91%B1%E5%B1%82%E5%88%97%E2%80%94%E2%80%94FieldMeta%E4%B8%AD%E7%9A%84onion-layout"><span class="nav-number">9.0.3.</span> <span class="nav-text">每一个原始列对应多个洋葱层列——FieldMeta中的onion_layout</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8E%E4%B8%8B%E4%B8%80%E5%B1%82Enclayer%E7%9A%84%E5%AF%B9%E5%BA%94%E2%80%94%E2%80%94OnionMeta%E4%B8%AD%E7%9A%84std-vector"><span class="nav-number">9.0.4.</span> <span class="nav-text">与下一层Enclayer的对应——OnionMeta中的std:vector</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E5%90%8E%E7%9A%84Enclayer"><span class="nav-number">9.0.5.</span> <span class="nav-text">最后的Enclayer</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lyj789</p>
+  <div class="site-description" itemprop="description">快乐打工人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lyj789</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">94k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:25</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

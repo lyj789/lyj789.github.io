@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="CTF_Angrgithub: https:&#x2F;&#x2F;github.com&#x2F;jakespringer&#x2F;angr_ctf. 可以看到有每一个题目的文件夹（题目生成包，用来生成可执行文件，只需刷题的话大概没用），还有dist和solutions两个文件夹。 dist里有：  XX_xxxx：每道题的elf。 scaffoldXX.py：解题脚本挖空范例（题面，需要填空，注释用来解释语句的作用很详细）。  s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="每日一题3-1">
+<meta property="og:url" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/index.html">
+<meta property="og:site_name" content="L1E6N0A2">
+<meta property="og:description" content="CTF_Angrgithub: https:&#x2F;&#x2F;github.com&#x2F;jakespringer&#x2F;angr_ctf. 可以看到有每一个题目的文件夹（题目生成包，用来生成可执行文件，只需刷题的话大概没用），还有dist和solutions两个文件夹。 dist里有：  XX_xxxx：每道题的elf。 scaffoldXX.py：解题脚本挖空范例（题面，需要填空，注释用来解释语句的作用很详细）。  s">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a1.png">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog/blog/source_posts/每日一题3-1/a1.png">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a2.png">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog/blog/source_posts/每日一题3-1/a2.png">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a3.png">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog/blog/source_posts/每日一题3-1/a3.png">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a9.png">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog/blog/source_posts/每日一题3-1/a9.png">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a6.png">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog/blog/source_posts/每日一题3-1/a6.png">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a7.png">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog/blog/source_posts/每日一题3-1/a7.png">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a8.png">
+<meta property="og:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog/blog/source_posts/每日一题3-1/a8.png">
+<meta property="article:published_time" content="2021-03-01T02:00:04.000Z">
+<meta property="article:modified_time" content="2021-03-19T07:25:35.363Z">
+<meta property="article:author" content="lyj789">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a1.png">
+
+<link rel="canonical" href="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>每日一题3-1 | L1E6N0A2</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">L1E6N0A2</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">监督自己不断学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          每日一题3-1
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-01 10:00:04" itemprop="dateCreated datePublished" datetime="2021-03-01T10:00:04+08:00">2021-03-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-19 15:25:35" itemprop="dateModified" datetime="2021-03-19T15:25:35+08:00">2021-03-19</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="CTF-Angr"><a href="#CTF-Angr" class="headerlink" title="CTF_Angr"></a>CTF_Angr</h2><p>github: <a target="_blank" rel="noopener" href="https://github.com/jakespringer/angr_ctf">https://github.com/jakespringer/angr_ctf</a>. 可以看到有每一个题目的文件夹（题目生成包，用来生成可执行文件，只需刷题的话大概没用），还有<code>dist</code>和<code>solutions</code>两个文件夹。</p>
+<p><code>dist</code>里有：</p>
+<ol>
+<li><code>XX_xxxx</code>：每道题的elf。</li>
+<li><code>scaffoldXX.py</code>：解题脚本挖空范例（题面，需要填空，注释用来解释语句的作用很详细）。</li>
+</ol>
+<p><code>solutions</code>里各道题的文件夹里有：</p>
+<ol>
+<li><code>XX_xxxx</code>：每道题的elf。</li>
+<li><code>scaffoldXX.py</code>：解题脚本挖空范例（同上）。</li>
+<li><code>solveXX.py</code>：解题脚本（正确答案=v=）。</li>
+</ol>
+<p>这里面都是典型的angr使用方法，这里仅以第一个范例进行演示，剩下的可以按照相同的思路求解。</p>
+<a id="more"></a>
+
+<h4 id="0X00-angr-find"><a href="#0X00-angr-find" class="headerlink" title="0X00-angr_find"></a>0X00-angr_find</h4><p>使用IDA打开dist/00_angr_find,F5转化为伪C代码</p>
+<img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a1.png" class title="a1">
+
+<p><img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog\blog\source_posts\每日一题3-1\a1.png" alt="1"></p>
+<p>程序输入password，经过complex_function函数处理，如果最终等于“JACEJGCS”就输出Good Job。</p>
+<p>complex_fuction函数判断了输入的取值范围。</p>
+<img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a2.png" class title="a2">
+
+<p><img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog\blog\source_posts\每日一题3-1\a2.png" alt="2"></p>
+<p>本题使用传统的“爆破”方法也可以解决，一位一位拼出符合题意的输入（“JXWVXRKX”）。脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">str1 = <span class="string">&quot;JACEJGCS&quot;</span></span><br><span class="line">flag = <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">complex_function</span>(<span class="params">a1,a2</span>):</span></span><br><span class="line">    <span class="keyword">return</span> (<span class="number">3</span> * a2 + a1 - <span class="number">65</span>) % <span class="number">26</span> + <span class="number">65</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(str1)):</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">64</span>,<span class="number">90</span>):      </span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">ord</span>(str1[i]) == complex_function(j,i):</span><br><span class="line">                flag += <span class="built_in">chr</span>(j)</span><br><span class="line">                <span class="keyword">break</span>            </span><br><span class="line">    print(flag)</span><br></pre></td></tr></table></figure>
+
+<p>知道目标输出，构造合适的输入，可以使用Angr这个符号执行工具解题。</p>
+<p>①.新建一个Angr工程，并且载入二进制文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">path_to_binary = <span class="string">&#x27;D:\WinAFL\angr_ctf\dist\00_angr_find&#x27;</span></span><br><span class="line">project = angr.Project(path_to_binary, auto_load_libs=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+
+<p>②.创建程序入口点的state</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">state = p.factory.entry_state(add_options=&#123;angr.options.SYMBOLIC_WRITE_ADDRESSES&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>③.将要求解的变量符号化</p>
+<p>本题目中<strong>可以</strong>省略这步操作(当然也可以保留，但后面就不能用dump，要用eval)，因为不是手动设置的输入，是在程序运行时用户任意输入的。</p>
+<p><strong>详细解释见下“注”</strong>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">u = claripy.BVS(<span class="string">&quot;u&quot;</span>, <span class="number">8</span>)</span><br><span class="line">initial_state.memory.store(<span class="number">0x080485C7</span>, u)  //main地址</span><br></pre></td></tr></table></figure>
+
+<p>④.创建SimulationManager进行程序执行管理</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sm = p.factory.simulation_manager(state)</span><br></pre></td></tr></table></figure>
+
+<p>⑤.搜索满足我们目标的state</p>
+<p>目标state是”good job”, IDA中确定地址为0x8048678</p>
+<img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a3.png" class title="a3">
+
+<p><img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog\blog\source_posts\每日一题3-1\a3.png" alt="3"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print_good_address = <span class="number">0x8048678</span></span><br></pre></td></tr></table></figure>
+
+<p>⑥.求解程序执行到state时，符号化变量所需要的约束条件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sm.explore(find=print_good_address)</span><br></pre></td></tr></table></figure>
+
+<p>⑥.解出约束条件，获得目标值</p>
+<p><code>solution_state.posix.dumps(0)</code>代表该状态执行路径的所有输入 </p>
+<p><code>solution_state.posix.dumps(1)</code>代表该状态执行路径的所有输出 </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> sm.found:</span><br><span class="line">    solution_state = sm.found[<span class="number">0</span>]</span><br><span class="line">    print(solution_state.posix.dumps(<span class="number">0</span>))</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="keyword">raise</span> Exception(<span class="string">&#x27;Could not find the solution&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>完整代码见 <code>&quot;./angr_ctf/solutions/00_angr_find/solve00.py&quot;</code>, 与爆破得到的结果一致。</p>
+<p><strong>注：本题中不是手动设置的输入，而是程序运行过程中进行的输入，因此可以使用dump(0) dump标准输入来得到输入。但如果题目修改为<code>char s1[9]=&quot;00000000&quot;</code>,并去掉scanf，这时就要将输入符号化，使用angr求解器（solver）提供的eval函数，得到满足条件的可能的输入。</strong></p>
+<p><strong>solver.eval（）函数详细说明：<a target="_blank" rel="noopener" href="https://blog.csdn.net/doudoudouzoule/article/details/79394447">https://blog.csdn.net/doudoudouzoule/article/details/79394447</a></strong></p>
+<h2 id="baby-re（DEFCON-2016-quals）"><a href="#baby-re（DEFCON-2016-quals）" class="headerlink" title="baby-re（DEFCON 2016 quals）"></a>baby-re（DEFCON 2016 quals）</h2><p>github：<a target="_blank" rel="noopener" href="https://github.com/angr/angr-doc/tree/master/examples%EF%BC%8C%E8%BF%99%E9%87%8C%E6%9C%89%E5%BE%88%E5%A4%9A%E4%BE%8B%E5%AD%90%EF%BC%8C%E4%B9%8B%E5%89%8D%E5%B7%B2%E7%BB%8F%E5%AE%9E%E8%B7%B5%E8%BF%87sym_write%EF%BC%8C%E8%BF%99%E6%AC%A1%E9%80%89%E6%8B%A9%E4%B8%80%E4%B8%AA%E5%A4%8D%E6%9D%82%E7%82%B9%E7%9A%84%EF%BC%8Cdefcon2016quals_baby-re%EF%BC%8C%E4%BD%9C%E4%B8%BA%E4%B8%80%E9%81%93%E7%BB%8F%E5%85%B8%E7%9A%84CTF%E7%9C%9F%E9%A2%98%EF%BC%8C%E3%80%8A%E4%BB%8E0%E5%88%B01">https://github.com/angr/angr-doc/tree/master/examples，这里有很多例子，之前已经实践过sym_write，这次选择一个复杂点的，defcon2016quals_baby-re，作为一道经典的CTF真题，《从0到1</a> CTFer成长之路》一书也对这个例子进行了详细的分析。</p>
+<p>首先IDA打开二进制文件，F5查看C伪代码，了解程序逻辑。输入13个字符，然后通过CheckSolution判断输入字符是否满足约束条件。（截图为部分程序代码）</p>
+<img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a9.png" class title="a9">
+
+<p><img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog\blog\source_posts\每日一题3-1\a9.png" alt="9"></p>
+<p>分析可知成功的地址是0x4028E9，失败的地址是0x402941</p>
+<img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a6.png" class title="a6">
+
+<p><img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog\blog\source_posts\每日一题3-1\a6.png" alt="6"></p>
+<img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a7.png" class title="a7">
+
+<p><img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog\blog\source_posts\每日一题3-1\a7.png" alt="7"></p>
+<p>然后用最朴素的方式构造payload，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr</span><br><span class="line"><span class="keyword">import</span> claripy</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line">proj = angr.Project(<span class="string">&#x27;./baby-re&#x27;</span>, auto_load_libs=<span class="literal">False</span>)</span><br><span class="line">state = proj.factory.entry_state(add_options=&#123;angr.options.SYMBOLIC_WRITE_ADDRESSES&#125;)</span><br><span class="line">sm = proj.factory.simulation_manager(state)</span><br><span class="line">sm.explore(find=<span class="number">0x4028E9</span>, avoid=<span class="number">0x402941</span>)</span><br><span class="line"><span class="keyword">if</span> sm.found:</span><br><span class="line">    solution_state = sm.found[<span class="number">0</span>]</span><br><span class="line">    text = solution_state.posix.dumps(<span class="number">0</span>).decode(<span class="string">&quot;utf-8&quot;</span>)  <span class="comment">#bytes转化为string</span></span><br><span class="line">    <span class="built_in">str</span> = re.findall(<span class="string">r&#x27;.&#123;%d&#125;&#x27;</span> % <span class="built_in">int</span>(<span class="number">10</span>), text)   <span class="comment">#每10位进行切割，asc码转字符串，拼接组成flag</span></span><br><span class="line">    flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">str</span>:</span><br><span class="line">        flag += (<span class="built_in">chr</span>(<span class="built_in">int</span>(i)))</span><br><span class="line">    print(flag)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="keyword">raise</span> Exception(<span class="string">&#x27;Could not find the solution&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>程序输出正确的结果，但用时较长，下面要想办法优化。</p>
+<img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/a8.png" class title="a8">
+
+<p><img src="/2021/03/01/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-1/Blog\blog\source_posts\每日一题3-1\a8.png" alt="8"></p>
+<ul>
+<li><p>LAZY_SOLVES</p>
+<p>在LAZY_SOLVES打开的情况下，只要路径在基本块的末尾分支为几个，angr就不会主动检查每个成功的状态是否可以满足。相反，angr认为他们都是可以满足的，并且继续创造成功的路径。LAZY_SOLVES指在不运行的时候检查当前的条件是否能够成功到达目标位置。这样无法避免一些无解的情况，但是可以显著提高脚本的运行速度，是在路径爆炸（创建更多路径）和花费在约束求解上的时间之间的平衡。</p>
+<p>在早期angr版本中默认LAZY_SOLVES是开启的，它可以加快我们分析的速度，因为它不会对每个状态都进行判断。新版本可通过下面的语句开启：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sm.one_active.options.add(angr.options.LAZY_SOLVES</span><br></pre></td></tr></table></figure>
+
+<p>经过实践，时间大大缩短，从449.51s降低到15.78s</p>
+</li>
+<li><p>blank_state</p>
+<p>有些时候程序的输入数据被分类很多组，或者程序获取输入的逻辑实现的很复杂，严重干扰了angr分析，这时候就要跳过那些输入指令，加载程序，提高符号执行效率。创建<code>initial_state</code>时，使用factory的blank_state方法，传入地址，表示从该地址的状态开始，实现任意位置加载程序。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">state = proj.factory.blank_state(addr=<span class="number">0x4025E7</span>) <span class="comment">#main函数地址</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>hook</p>
+<p>在scanf函数前面存在fflush函数，它的功能是清空缓冲区，将输入写入stream。注意到在每次输入时，都会调用printf和fflush这两个对程序关键算法分析没有帮助的函数浪费时间，因此hook这两个函数，让他们直接return。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">proj.hook_symbol(<span class="string">&#x27;printf&#x27;</span>,angr.SIM_PROCEDURES[<span class="string">&#x27;stubs&#x27;</span>][<span class="string">&#x27;ReturnUnconstrained&#x27;</span>](return_value=<span class="number">0</span>), replace = <span class="literal">True</span>)</span><br><span class="line">proj.hook_symbol(<span class="string">&#x27;fflush&#x27;</span>,angr.SIM_PROCEDURES[<span class="string">&#x27;stubs&#x27;</span>][<span class="string">&#x27;ReturnUnconstrained&#x27;</span>](return_value=<span class="number">0</span>),replace = <span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<p>优化scanf：用自己的<code>my_scanf()</code>来代替<code>__isoc99_scanf</code>，我们在保持scanf功能不变的情况下，将我们的符号变量存储进去。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">my_scanf</span>(<span class="params">angr.SimProcedure</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self, fmt, des</span>):</span>  <span class="comment"># 参数为 (self + 该函数实际参数)</span></span><br><span class="line">        simfd = self.state.posix.get_fd(<span class="number">0</span>) <span class="comment"># 创建一个标准输入对对象</span></span><br><span class="line">        data, real_size = simfd.read_data(<span class="number">4</span>) <span class="comment"># 从标准输入中读取一个整数，返回值第一个是读到的数据内容 第二个数内容长度</span></span><br><span class="line">        self.state.memory.store(des, data) <span class="comment"># 将数据保存到相应参数内</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span> <span class="comment"># 返回原本函数该返回的东西</span></span><br><span class="line"></span><br><span class="line">proj.hook_symbol(<span class="string">&#x27;__isoc99_scanf&#x27;</span>, my_scanf(), replace=<span class="literal">True</span>)</span><br><span class="line"><span class="comment"># 这里%d对应int 是4个字节 但是读取到一个int所以返回1  所以这完全是模拟的原来的函数</span></span><br></pre></td></tr></table></figure>
+
+<p>因为我们这里Scanf是要向内存写入数据的，于是我们利用使用 <code>state.memory.store(addr, val)</code> 接口将数据保存到相应参数内。</p>
+<p>优化scanf就可以达到和控制返回值类似的效果，对于速度提升效果明显，时间缩短到4.86s</p>
+</li>
+<li><p>Claripy</p>
+<p>angr中通过claripy模块手动构造输入，claripy.BVS可以直接创建符号变量，第一个参数为变量名，第二个参数是位数，可以这样创建用户输入，然后把这些变量保存在内存地址。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag_chars = [claripy.BVS(<span class="string">&#x27;flag_%d&#x27;</span> % i, <span class="number">32</span>) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">13</span>)]</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">my_scanf</span>(<span class="params">angr.SimProcedure</span>):</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">run</span>(<span class="params">self, fmt, ptr</span>):</span> </span><br><span class="line">		self.state.mem[ptr].dword = flag_chars[self.state.<span class="built_in">globals</span>[<span class="string">&#x27;scanf_count&#x27;</span>]]</span><br><span class="line">		self.state.<span class="built_in">globals</span>[<span class="string">&#x27;scanf_count&#x27;</span>] += <span class="number">1</span></span><br><span class="line">proj.hook_symbol(<span class="string">&#x27;__isoc99_scanf&#x27;</span>, my_scanf(), replace=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">simulation.one_active.<span class="built_in">globals</span>[<span class="string">&#x27;scanf_count&#x27;</span>] = <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>这样程序每次调用scanf时，其实就是在执行my_scanf就会将flag_chars[i]存储到self.state.mem[ptr]当中，这其中ptr参数，其实就是本身scanf函数传递进来的。为了控制下标，我们设置了一个全局符号变量scanf_count记录scanf函数的数目，存储在state.globals里面，使得第i个scanf函数的state.mem赋值第i个符号变量。</p>
+<p>这种优化方式时间缩短，效果不明显，平均5.02s</p>
+<p>综合上述分析优化，完整程序代码见<code>./angr-doc/examples/defcon2016quals_baby-re/solve.py</code></p>
+</li>
+</ul>
+<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/doudoudouzoule/article/details/79977415">https://blog.csdn.net/doudoudouzoule/article/details/79977415</a></p>
+<p><a target="_blank" rel="noopener" href="https://b0ldfrev.gitbook.io/note/symbolic_execution/angr-jin-jie">https://b0ldfrev.gitbook.io/note/symbolic_execution/angr-jin-jie</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/214288">https://www.anquanke.com/post/id/214288</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/4137">https://xz.aliyun.com/t/4137</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/doudoudouzoule/article/details/79394447">https://blog.csdn.net/doudoudouzoule/article/details/79394447</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/02/26/IoT%E8%AE%BE%E5%A4%87%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B/" rel="prev" title="IoT设备流量分析流程">
+      <i class="fa fa-chevron-left"></i> IoT设备流量分析流程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/03/02/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-2/" rel="next" title="每日一题3-2">
+      每日一题3-2 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#CTF-Angr"><span class="nav-number">1.</span> <span class="nav-text">CTF_Angr</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#0X00-angr-find"><span class="nav-number">1.0.1.</span> <span class="nav-text">0X00-angr_find</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#baby-re%EF%BC%88DEFCON-2016-quals%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">baby-re（DEFCON 2016 quals）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">2.0.1.</span> <span class="nav-text">参考资料</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lyj789</p>
+  <div class="site-description" itemprop="description">快乐打工人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lyj789</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">94k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:25</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

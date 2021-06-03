@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="模糊测试基本概念模糊测试是一种软件测试技术,其核心思想是自动或半自动的生成随机数据输入到一个程序中，并监视程序异常，如崩溃，断言(assertion)失败，以发现可能的程序错误，比如内存泄漏。  假如该程序在应对任一输入值时失效，开始出现冲突、锁住、消耗大量内存或者产生不可控制的程序错误，开发者就知道代码中某处出现了bug。  比较有效的模糊测试，并不是用大量纯随机数据直接来测试，而是对已知有效数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CTF基础知识之模糊测试">
+<meta property="og:url" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/index.html">
+<meta property="og:site_name" content="L1E6N0A2">
+<meta property="og:description" content="模糊测试基本概念模糊测试是一种软件测试技术,其核心思想是自动或半自动的生成随机数据输入到一个程序中，并监视程序异常，如崩溃，断言(assertion)失败，以发现可能的程序错误，比如内存泄漏。  假如该程序在应对任一输入值时失效，开始出现冲突、锁住、消耗大量内存或者产生不可控制的程序错误，开发者就知道代码中某处出现了bug。  比较有效的模糊测试，并不是用大量纯随机数据直接来测试，而是对已知有效数">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/a1.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog/blog/source_posts/CTF基础知识之模糊测试/a1.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/eg.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog/blog/source_posts/CTF基础知识之模糊测试/eg.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/a2.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog/blog/source_posts/CTF基础知识之模糊测试/a2.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/a3.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog/blog/source_posts/CTF基础知识之模糊测试/a3.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/a6.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog/blog/source_posts/CTF基础知识之模糊测试/a6.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/a4.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog/blog/source_posts/CTF基础知识之模糊测试/a4.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/a5.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog/blog/source_posts/CTF基础知识之模糊测试/a5.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/out.png">
+<meta property="og:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog/blog/source_posts/CTF基础知识之模糊测试/out.png">
+<meta property="article:published_time" content="2021-02-24T05:11:03.000Z">
+<meta property="article:modified_time" content="2021-03-19T12:27:59.671Z">
+<meta property="article:author" content="lyj789">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/a1.png">
+
+<link rel="canonical" href="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CTF基础知识之模糊测试 | L1E6N0A2</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">L1E6N0A2</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">监督自己不断学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CTF基础知识之模糊测试
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-24 13:11:03" itemprop="dateCreated datePublished" datetime="2021-02-24T13:11:03+08:00">2021-02-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-19 20:27:59" itemprop="dateModified" datetime="2021-03-19T20:27:59+08:00">2021-03-19</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="模糊测试"><a href="#模糊测试" class="headerlink" title="模糊测试"></a>模糊测试</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>模糊测试是一种软件测试技术,其核心思想是自动或半自动的生成随机数据输入到一个程序中，并监视程序异常，如崩溃，断言(assertion)失败，以发现可能的程序错误，比如内存泄漏。</p>
+<blockquote>
+<p>假如该程序在应对任一输入值时失效，开始出现冲突、锁住、消耗大量内存或者产生不可控制的程序错误，开发者就知道代码中某处出现了bug。</p>
+</blockquote>
+<p>比较有效的模糊测试，并不是用大量纯随机数据直接来测试，而是对<strong>已知有效数据</strong>、<strong>故意错误数据</strong>和<strong>随机数据</strong>的联合调试。使用已知有效数据的目的是跳过不感兴趣的代码片段，或者说是为了防止程序在抵达一个欠缺的代码块前出现拒绝信息。使用故意错误数据的目的是利用已知或我怀疑将成为代码中缺陷的情况。最后，使用随机数据的目的就是看看会发生什么。</p>
+<a id="more"></a>
+
+<p><strong>模糊测试流程</strong></p>
+<ul>
+<li><p>确定测试目标</p>
+</li>
+<li><p>确定输入向量</p>
+<p>几乎漏洞的形成原因大都是对于客户端传输的数据没有经过过滤等，在服务端造成了恶意的影响。</p>
+<p>例如WEB端进行fuzz：从客户端向服务端传输数据包{ <strong>能传输的任何数据</strong>（例如header，useragent等）}，这些传输的数据大多数都可能为模糊测试变量。 </p>
+</li>
+<li><p>生成模糊测试数据</p>
+<p> 基于测试中，如何选择<strong>自动化输入的数据</strong>，是使用字典，还是用随机数，还是特定生成的字典呢。</p>
+</li>
+<li><p>执行模糊测试数据</p>
+<p>在这个步骤中，就要向你的服务端发送数据包（WEB端），发送在上一步骤中生成的数据包。当然web端还是要小心waf，如果一次性发10k个数据包，那么只会引起反效果。</p>
+</li>
+<li><p>监视回显</p>
+<p>在这一步，根据测试目标的不同自然监视方式也不同，要根据测试的类型来设置各样的监视</p>
+</li>
+<li><p>判断漏洞是否能被利用</p>
+<p> 根据测试的类型不同，那么前几个阶段的权重，顺序或许可以进行调整，但是仍<strong>不能保证可百分百</strong>发现所有安全相关的缺陷。</p>
+</li>
+</ul>
+<h3 id="WinAFL"><a href="#WinAFL" class="headerlink" title="WinAFL"></a>WinAFL</h3><p>从原理上来说 AFL 通过变异软件输入的数据来进行软件 Bug 挖掘，与一些模糊测试器不同的是 AFL 变异数据的方法是通过覆盖率算法来实现的，而不是通过格式。AFL通过对源码进行重新编译时进行插桩（简称编译时插桩）的方式自动产生测试用例来探索二进制程序内部新的执行路径。由于需要在相关代码处插桩，因此AFL主要用于对开源软件进行测试。</p>
+<img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/a1.png" class title="a1">
+
+<p><img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog\blog\source_posts\CTF基础知识之模糊测试\a1.png" alt="1"></p>
+<p>WinAFL 的原理和其他的模糊测试工具类似，通过对程序输入的数据进行变异处理，观察程序在处理这些变异数据是否会产生  Crash，以此来验证程序是否有  Bug。但是相对于其它模糊测试工具来说则更为智能，因为它会通过进化算法不停的改变程序输入的数据，并且结合程序的覆盖率以进行下一步操作。运行的速度越快，效果越明显。</p>
+<p>最开始给afl初始种子，然后经过变异得到输入，将输入给到待测试程序，并通过插桩技术对程序跟踪，或者覆盖率。然后覆盖率指导之前的流程，周而复始，直到遇到崩溃情况，便将其保存。这种覆盖率的想法使得输入不再是随机盲目的。  </p>
+<p><strong>插桩编译——fuzzing——分析crashes</strong></p>
+<p>（将testcase作为程序的输入执行程序，afl会在这个testcase的基础上进行自动变异输入）</p>
+<p>安装过程见下面的两篇博客： VisualStudio2017+Windows10</p>
+<p><a target="_blank" rel="noopener" href="https://www.giantbranch.cn/2020/12/25/winafl%E7%BC%96%E8%AF%91%E4%B8%8E%E6%B5%8B%E8%AF%95/">https://www.giantbranch.cn/2020/12/25/winafl%E7%BC%96%E8%AF%91%E4%B8%8E%E6%B5%8B%E8%AF%95/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/210457">https://www.anquanke.com/post/id/210457</a></p>
+<blockquote>
+<p>WinAFL 项目地址：<a target="_blank" rel="noopener" href="https://github.com/ivanfratric/winafl">https://github.com/ivanfratric/winafl</a></p>
+<p>DynamoRIO 项目地址：<a target="_blank" rel="noopener" href="https://github.com/DynamoRIO/dynamorio/wiki/Downloads">https://github.com/DynamoRIO/dynamorio/wiki/Downloads</a></p>
+</blockquote>
+<h3 id="实例分析"><a href="#实例分析" class="headerlink" title="实例分析"></a>实例分析</h3><p>使用winafl下的test_gdiplus.exe进行测试</p>
+<img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/eg.png" class title="eg">
+
+<p><img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog\blog\source_posts\CTF基础知识之模糊测试\eg.png" alt="eg"></p>
+<p>**1. DynamoRIO **</p>
+<p>winafl 动态插桩是调用DynamoRIO 下的 “drrun.exe” 进行的。动态二进制插桩框架DynamoRIO通过将程序代码进行反复插桩(Instrumentation)执行构建了源程序代码与操纵代码之间的桥梁。我们可以简单使用”drrun.exe”来获取目标程序执行过程中所加载的模块，从而推断DynamoRIO编译是成功并可用的，这也是官方教程里的做法。</p>
+<p>任意找一个bmp格式的图片放到上面我们编译后的winafl\b32\bin\Release目录下。然后运行下面命令:</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">D:\<span class="title">WinAFL</span>\<span class="title">my_winafl_fuzz</span>\<span class="title">DynamoRIO</span>-<span class="title">Windows</span>-8.0.0-1\<span class="title">bin64</span>\<span class="title">drrun.exe</span>  -<span class="title">c</span> <span class="title">winafl.dll</span> -<span class="title">debug</span> -<span class="title">target_module</span> <span class="title">test_gdiplus.exe</span> -<span class="title">target_offset</span> 0<span class="title">x10e0</span> -<span class="title">fuzz_iterations</span> 5 -<span class="title">nargs</span> 2 -- <span class="title">test_gdiplus.exe</span> 1.<span class="title">bmp</span></span></span><br></pre></td></tr></table></figure>
+
+<img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/a2.png" class title="a2">
+
+<p><img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog\blog\source_posts\CTF基础知识之模糊测试\a2.png" alt="2"></p>
+<p>这里的偏移量0x10e0是通过ida查看main函数是sub_1400010E0，基址是0x140000000，偏移是0x10e0。</p>
+<img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/a3.png" class title="a3">
+
+<p><img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog\blog\source_posts\CTF基础知识之模糊测试\a3.png" alt="3"></p>
+<p> drrun的参数说明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">-c &lt;client&gt; [client options] — &lt;app and args to run&gt;</span><br><span class="line">&#x2F;&#x2F; winafl.dll 参数说明。这也是插桩参数的使用[instrumentation options]</span><br><span class="line">-debug # debug模式, 它会生成一个log文件</span><br><span class="line">-target_module # 目标程序(只能有一个), 也是target_offset所在的模块</span><br><span class="line">-target_offset # 目标程序偏移，相对于target_module的偏移，在method无法导出的时候使用</span><br><span class="line">-fuzz_iterations # 在重新启动目标进程之前，目标函数要运行的最大迭代次数</span><br><span class="line">-nargs # 目标程序执行所需要的参数个数(包括目标程序本身)</span><br><span class="line">-target_module # 目标函数,需要export或者调试符号(pdb)</span><br><span class="line">-coverage_module # 计算覆盖率的模块,也就是目标程序会调用的模块(dll); (可以有多个)</span><br></pre></td></tr></table></figure>
+
+<p>执行之后产生一个log文件，打开是目标程序执行过程中所所调用的dll</p>
+<img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/a6.png" class title="a6">
+
+<p><img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog\blog\source_posts\CTF基础知识之模糊测试\a6.png" alt="6"></p>
+<p><strong>2.WinAFL</strong></p>
+<p>在winafl\build64\bin\Release目录下，分别新建 in、out 文件夹；然后把bmp格式图片放到 in 文件夹下。然后运行下面命令。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">afl-fuzz.exe -i <span class="keyword">in</span> -o out -D D:\WinAFL\my_winafl_fuzz\DynamoRIO-Windows-<span class="number">8</span>.<span class="number">0</span>.<span class="number">0</span>-<span class="number">1</span>\bin64\ -t <span class="number">20000</span> -- -coverage_module gdiplus.dll -target_module test_gdiplus.exe -target_offset <span class="number">0</span>x10e0 -fuzz_iterations <span class="number">20</span> -nargs <span class="number">2</span> -- test_gdiplus.exe @@</span><br></pre></td></tr></table></figure>
+
+<img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/a4.png" class title="a4">
+
+<p><img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog\blog\source_posts\CTF基础知识之模糊测试\a4.png" alt="4"></p>
+<p>参数说明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">-i        # 存放样本的目录</span><br><span class="line">-o        # 保存输出数据,包括 crash文件、测试用例等</span><br><span class="line">-D        # DynamoRIO的路径 (drrun, drconfig)</span><br><span class="line">-t msec   # 每一次样本执行的超时时间</span><br><span class="line">--        # 分割符</span><br><span class="line">****************************</span><br><span class="line">第一个&quot;--&quot;分割符： 后面跟的是插桩的参数</span><br><span class="line">	-coverage_module gdiplus.dll 为fuzzing对象程序会调用的模块，也就是说你fuzzing的偏移地址的函数会调用到这些模块里面的函数，通过插桩时winafl.dll的-debug模式获得，然后根据反汇编代码判断调用了那些模块，</span><br><span class="line">	在无法自行判断的情况下我们写的跟-target_module一样即可。</span><br><span class="line">****************************</span><br><span class="line">第二个&quot;--&quot;分割符： 后面跟的是目标程序的参数</span><br><span class="line">	在执行过程中，afl-fuzz会把@@替代测试样本，第一个参数可以之前拷贝到in目录下的1.bmp，用@@来代替，@@所代表传入的是变异后的输入。最后实际执行的命令为test_gdiplus.exe 1.bmp&#x2F;变异输入</span><br></pre></td></tr></table></figure>
+
+<p>查看fuzzing状态，主要看右上角的“uniq crashes”：</p>
+<img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/a5.png" class title="a5">
+
+<p><img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog\blog\source_posts\CTF基础知识之模糊测试\a5.png" alt="5"></p>
+<ul>
+<li><p>process timing：包括当前fuzzer的运行时间、最近一次发现新执行路径的时间、最近一次崩溃的时间、最近一次超时的时间。</p>
+</li>
+<li><p>overall results：包括运行的总周期数、总路径数、崩溃次数、超时次数。</p>
+<p>总周期数可以用来作为何时停止fuzzing的参考。随着不断地fuzzing，周期数会不断增大，其颜色也会由洋红色，逐步变为黄色、蓝色、绿色。一般来说，当其变为绿色时，代表可执行的内容已经很少了，继续fuzzing下去也不会有什么新的发现了。此时，我们便可以通过Ctrl-C，中止当前的fuzzing</p>
+</li>
+<li><p>stage progress：包括正在测试的fuzzing策略、进度、目标的执行总次数、目标的执行速度</p>
+<p>执行速度可以直观地反映当前跑的快不快，如果速度过慢，比如低于500次每秒，那么测试时间就会变得非常漫长。如果发生了这种情况，那么我们需要进一步调整优化我们的fuzzing</p>
+</li>
+</ul>
+<p><strong>3. BugID</strong></p>
+<p>等所有测试结束之后，打开out文件夹，crashes文件夹里面是我们产生crash的样例，hangs里面是产生超时的样例，queue里面是每个不同执行路径的测试用例。</p>
+<img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/out.png" class title="out">
+
+<p><img src="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95/Blog\blog\source_posts\CTF基础知识之模糊测试\out.png" alt="out"></p>
+<p>整理被模糊测试找出的 Bug，调试一下出现 Crash 的原因，以及是否可以被利用。当然这个过程比较繁琐，利用 BugID（<a target="_blank" rel="noopener" href="https://github.com/SkyLined/BugId%EF%BC%89">https://github.com/SkyLined/BugId）</a> 可以帮助你进行 Bug 分类，或者编写 Windbg 脚本。</p>
+<p><em>winafl的局限性体现在如果fuzzing的目标程序，没有函数导出表(dll)、不接受命令行参数、源代码也没有、环境变量也不调用的话，就很难fuzzing。解决的办法就只有hook和逆向。</em></p>
+<h4 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h4><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/89039547">https://zhuanlan.zhihu.com/p/89039547</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/studyskill/p/7115913.html">https://www.cnblogs.com/studyskill/p/7115913.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lei_saint/article/details/49158943">https://blog.csdn.net/lei_saint/article/details/49158943</a></p>
+<p><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-261253.htm">https://bbs.pediy.com/thread-261253.htm</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/86905">https://www.anquanke.com/post/id/86905</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/02/24/CTF%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%B9%8B%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/" rel="prev" title="CTF基础知识之符号执行">
+      <i class="fa fa-chevron-left"></i> CTF基础知识之符号执行
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/02/25/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF02-25/" rel="next" title="论文积累02.25">
+      论文积累02.25 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95"><span class="nav-number">1.</span> <span class="nav-text">模糊测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WinAFL"><span class="nav-number">1.2.</span> <span class="nav-text">WinAFL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-number">1.3.</span> <span class="nav-text">实例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%EF%BC%9A"><span class="nav-number">1.3.1.</span> <span class="nav-text">参考资料：</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lyj789</p>
+  <div class="site-description" itemprop="description">快乐打工人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lyj789</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">94k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:25</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

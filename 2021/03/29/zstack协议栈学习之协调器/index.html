@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Zigbee保存网络状态的宏NV_RESTORE回顾：Zigbee 网络的设备类型协调器的功能特点 􀂗 选择一个频道和 PAN ID，组建网络 􀂗 允许路由和终端节点加入这个网络 􀂗 对网络中的数据进行路由 􀂗 必须常电供电，不能进入睡眠模式 􀂗 可以为睡眠的终端节点保留数据，至其唤醒后获取">
+<meta property="og:type" content="article">
+<meta property="og:title" content="zstack协议栈学习之NV">
+<meta property="og:url" content="http://example.com/2021/03/29/zstack%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%8F%E8%B0%83%E5%99%A8/index.html">
+<meta property="og:site_name" content="L1E6N0A2">
+<meta property="og:description" content="Zigbee保存网络状态的宏NV_RESTORE回顾：Zigbee 网络的设备类型协调器的功能特点 􀂗 选择一个频道和 PAN ID，组建网络 􀂗 允许路由和终端节点加入这个网络 􀂗 对网络中的数据进行路由 􀂗 必须常电供电，不能进入睡眠模式 􀂗 可以为睡眠的终端节点保留数据，至其唤醒后获取">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/03/29/zstack%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%8F%E8%B0%83%E5%99%A8/pan.png">
+<meta property="og:image" content="http://example.com/2021/03/29/zstack%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%8F%E8%B0%83%E5%99%A8/Blog/blog/source_posts/zstack协议栈学习之协调器/pan.png">
+<meta property="og:image" content="http://example.com/2021/03/29/zstack%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%8F%E8%B0%83%E5%99%A8/Blog/blog/source_posts/zstack协议栈学习之协调器/test.png">
+<meta property="article:published_time" content="2021-03-29T09:34:40.000Z">
+<meta property="article:modified_time" content="2021-04-02T01:23:17.473Z">
+<meta property="article:author" content="lyj789">
+<meta property="article:tag" content="IoT">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/03/29/zstack%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%8F%E8%B0%83%E5%99%A8/pan.png">
+
+<link rel="canonical" href="http://example.com/2021/03/29/zstack%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%8F%E8%B0%83%E5%99%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>zstack协议栈学习之NV | L1E6N0A2</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">L1E6N0A2</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">监督自己不断学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/29/zstack%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%8F%E8%B0%83%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          zstack协议栈学习之NV
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-29 17:34:40" itemprop="dateCreated datePublished" datetime="2021-03-29T17:34:40+08:00">2021-03-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-02 09:23:17" itemprop="dateModified" datetime="2021-04-02T09:23:17+08:00">2021-04-02</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="Zigbee保存网络状态的宏NV-RESTORE"><a href="#Zigbee保存网络状态的宏NV-RESTORE" class="headerlink" title="Zigbee保存网络状态的宏NV_RESTORE"></a>Zigbee保存网络状态的宏NV_RESTORE</h3><h4 id="回顾：Zigbee-网络的设备类型"><a href="#回顾：Zigbee-网络的设备类型" class="headerlink" title="回顾：Zigbee 网络的设备类型"></a>回顾：Zigbee 网络的设备类型</h4><p><strong>协调器的功能特点</strong></p>
+<p>􀂗 选择一个频道和 PAN ID，组建网络</p>
+<p>􀂗 允许路由和终端节点加入这个网络</p>
+<p>􀂗 对网络中的数据进行路由</p>
+<p>􀂗 必须常电供电，不能进入睡眠模式</p>
+<p>􀂗 可以为睡眠的终端节点保留数据，至其唤醒后获取</p>
+<a id="more"></a>
+
+<p><strong>终端节点的功能特点</strong></p>
+<p>􀂗 在进行数据收发之前，必须首先加入一个 Zigbee 网络</p>
+<p>􀂗 不能允许其他设备加入</p>
+<p>􀂗 必须通过其父节点收发数据，不能对网络中的数据进行路由</p>
+<p>􀂗 可由电池供电，进入睡眠模式</p>
+<p>协调器在选择频道和PAN ID 组建网络后，其功能将相当于一个路由器。协调器或者路由器</p>
+<p>均允许其他设备加入网络，并为其路由数据。</p>
+<p>终端节点通过协调器或者某个路由器加入网络后，便成为其“子节点”；对应的路由器或者</p>
+<p>协调器即成为“父节点”。由于终端节点可以进入睡眠模式，其父节点便有义务为其保留其他节</p>
+<p>点发来的数据，直至其醒来，并将此数据取走。</p>
+<h4 id="PAN-ID"><a href="#PAN-ID" class="headerlink" title="PAN ID"></a>PAN ID</h4><p>一个zigbee网络的标志就是PANID，PANID是一个16位变量，可以定义65535个不同PANID号的网络。我们可以使用PANID在相同的信道内区分不同的zigbee网络。PANID一般由coordinator决定，router与endDevice接入时会从coordinator获取PANID。也可以固定router和endDevice的PANID，使其加入特定的coordinator。这个值在zstack协议栈的tools/f8wConfig.cfg中定义：</p>
+<p><strong>用户可在  f8wConfig.cfg  文件中配置PANID;</strong></p>
+<img src="/2021/03/29/zstack%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%8F%E8%B0%83%E5%99%A8/pan.png" class title="pan">
+
+<p><img src="/2021/03/29/zstack%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%8F%E8%B0%83%E5%99%A8/Blog\blog\source_posts\zstack协议栈学习之协调器\pan.png" alt="pan"></p>
+<ul>
+<li>如果这里设置为0XFFFF  :  </li>
+</ul>
+<p>那么协调器则随机产生一个值作为自己的PANID;  路由器和终端设备则会在自己的默认信道上随机选择一个网路加入，加入之后协调器的PANID即为自己的PANID;</p>
+<ul>
+<li>如过这里设置为不是0XFFFF的其他值：</li>
+</ul>
+<p>如果设定的值为0x0001–0xffff 区间内  为合法的； 那么协调器会直接以他为PANID;    如果在建立网络的时候发现 默认信道内该PANID已经被占用，那么协调器会继续搜索其他的PANID使用； 这就带来问题了， 终端和路由器并不知道协调器 换PANID了； 还会加入到原来设定的PANID中去；</p>
+<h4 id="NV-RESTORE"><a href="#NV-RESTORE" class="headerlink" title="NV_RESTORE"></a>NV_RESTORE</h4><p><strong>NV</strong>：是指掉电不丢失的存储器，EEPROM，FLASH都是NV，NV用来存储需要掉电不丢失的一些系统参数，不然每次上电都要重新设置参数等。</p>
+<p>NV_RESTORE编译选项提供了使设备能够将网络状态信息保存到非易失性存储器或从非易失性存储器中恢复网络状态信息的功能。这意味着，即使断电或断电，成功加入网络的设备也可以“恢复网络”</p>
+<p>设置编译选项NV_RESTORE后，即使网络中存在路由，协调器依然能加入到原有PANID中；NV_RESTORE选项保存的内容主要是节点运行过程中的状态量，借助这个特性，节点在掉电或者复位之后不需要无线电通讯就可以恢复到之前的网络连接状态。NV_RESTORE保存的内容主要有网络层数据库NIB、设备关联表、绑定表、路由表等。</p>
+<p><strong>问：coo和终端都已经组网成功</strong></p>
+<p> 1、这时将coo断电，重新上电，组网后终端的短地址是否不变？</p>
+<p> 2、这时终端断电，重新上电，组网后终端的短地址是否不变？</p>
+<p> 3、这时COO和终端都断电，重新上电，组网后终端的短地址是否不变？ </p>
+<p><strong>答</strong>：分两种情况来看 开启NV_RESTORE和不开启NV_RESTORE</p>
+<ol>
+<li><p>开启NV_RESTORE             2）不开启NV_RESTORE</p>
+<p>1, 不变                                         1, 变化(实验是不变的)</p>
+<p>2，不变                                       2，不变</p>
+<p>3，不变                                       3，变化</p>
+</li>
+</ol>
+<p><img src="/2021/03/29/zstack%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%8F%E8%B0%83%E5%99%A8/Blog\blog\source_posts\zstack协议栈学习之协调器\test.png" alt="test"></p>
+<p>如果只是节点单方面退网，协调器不知情的情况下，协调器的关联表还是有设备信息，当再次入网的时候就发送保存的短地址了。分配短地址是在库文件中完成的。（协调器的关联表）</p>
+<p>在协调器的宏定义中定义NV_RESTORE=1，可以帮助终端在重启后也还会连上一次连接的协调器，获取到的短地址仍然不变化。为了实现这个功能还需要开启NV_INIT。NV_INIT保存在nv的内容主要是网络或者节点的配置参数，在节点运行中这些参数很少变化或者几乎不会有变化。NV_INIT选项保存的所有参数可以在结构体zgItemTable中查看到。</p>
+<p>但是由于添加这两个选项，终端会继续尝试加入之前的网络而导致很难加入新的zigbee网络（如果终端想加入别的协调器网络，既是PANID和频道都一样，不管重启多少次都不会加入新的协调器中）；需要清除NV中保存的旧的网络信息，重新组建网络；清楚NV中参数方法如下</p>
+<p>方法一（硬重启）：</p>
+<p>这种重启的机制是关闭中断并死循环，然后WatchDog超时，从而导致的重启即“硬重启”。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;修改ZCD_NV_STARTUP_OPTION的值（想要强制一个“新的”加入，即不恢复网络状态）</span><br><span class="line">zgWriteStartupOptions(ZG_STARTUP_SET, ZCD_STARTOPT_DEFAULT_NETWORK_STATE);</span><br><span class="line">SystemReset();</span><br></pre></td></tr></table></figure>
+
+<p>方法二（软重启）：</p>
+<p>这种重启将PC指针重置为0，也就是上电时代码启动的位置，即“软重启”。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">NLME_InitNV();</span><br><span class="line">NLME_SetDefaultNV();</span><br><span class="line">&#x2F;&#x2F; clear NWK key values</span><br><span class="line">ZDSecMgrClearNVKeyValues();</span><br><span class="line">Onboard_soft_reset();  </span><br><span class="line">&#x2F;&#x2F;zb_SystemReset调用SystemResetSoft，再调用Onboard_soft_reset()</span><br></pre></td></tr></table></figure>
+
+<h4 id="Zigbee地址与设备入网"><a href="#Zigbee地址与设备入网" class="headerlink" title="Zigbee地址与设备入网"></a>Zigbee地址与设备入网</h4><p><strong>IEEE地址与短地址</strong></p>
+<p>IEEE地址是64位，在设备进入网络之前就分配好了的，应该在全球是唯一的，而网络地址是在网络建立后，设备加入网络时，它的父节点给它分配的，在设备通信时，首先由ieee地址找到设备的网络地址，然后根据网络地址实现设备之间的通信，这样可以减少帧头长度，多传有效数据。<br>    长地址固定，就像身份证ID，每个人一个，但是在一个建好的网络中，会给一个设备再临时分配一个地址，这个地址是16位，就是短地址，在通上，首先得通过长地址，去找短地址，然后，通过短地址通信，这样得话，可以减少帧控制部分内容，同时，也减少了处理，分析地址的运算量。</p>
+<p>IEEE address（地址）是生产是写入设备的地址，IEEE地址是芯片的固定地址，就像电脑网卡的MAC地址一样，地址较长通讯使用效低，Zigbee引入了短地址，16位短地址是协议栈来说的，协议里面规定在一个组网的网络中，每个都要有自己的短地址，这样是为了网络上节点的区分，由网络给设备分配唯一的端地址，通讯效率高一些。</p>
+<p><strong>设备入网</strong></p>
+<p>终端上电后稳定后就开始寻找周围是否存在网络？向周围发射广播，该广播内容包含自己的身份信息，即MAC地址和其它相关的网络信息，并时刻等待协调器或路由器的回应，一旦收到父网确认加入网路的回应信号则停止广播自己的身份ID，转入定时询问父网是否有自己消息的状态，并一直持续下去，如果有自己的消息则进行消息接收或处理。</p>
+<p>协调器上电后首先组建网络，网络组建成功后就可以允许其它设备加入到该网路并对网络进行管理，一旦发现有新的设备加入到网络，则分析该设备的广播包并解析出它的IEEE地址，然后分配给它一个网络短地址，反馈给该设备加入确认信息，至此一个设备加入到了该网络中。</p>
+<p>当加入网络时终端会发送一个响应给协调器，协调器的短地址是知道的因为是0x0000，当设备加入成功后，会产生一个ZDO_STATE_CHANGE_EVT事件，这个事件就是设备加入网络成功后，并在网络中的身份确定后产生的一个事件，我们可以在这里处理，一些初始化，比如可以发送终端的短地址，IEEE地址等，这里协调器接收到以后，可以提取出终端的短地址。</p>
+<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/wangzongze1986/article/details/8447895">https://blog.csdn.net/wangzongze1986/article/details/8447895</a></p>
+<p><a target="_blank" rel="noopener" href="http://blog.sina.com.cn/s/blog_7255103701016wem.html">http://blog.sina.com.cn/s/blog_7255103701016wem.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u010271303/article/details/49076871">https://blog.csdn.net/u010271303/article/details/49076871</a></p>
+<p><a target="_blank" rel="noopener" href="http://blog.sina.com.cn/s/blog_c415dd6d0101jnd9.html">http://blog.sina.com.cn/s/blog_c415dd6d0101jnd9.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/ssou_1985/article/details/12974485">https://blog.csdn.net/ssou_1985/article/details/12974485</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/jnwangcan/article/details/7709875">https://blog.csdn.net/jnwangcan/article/details/7709875</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/IoT/" rel="tag"># IoT</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/27/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-27/" rel="prev" title="每日一题3-27">
+      <i class="fa fa-chevron-left"></i> 每日一题3-27
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/04/19/IoT%E5%AD%A6%E4%B9%A0%E4%B9%8BAWS%E2%80%94MQTT/" rel="next" title="IoT学习之AWS—MQTT">
+      IoT学习之AWS—MQTT <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Zigbee%E4%BF%9D%E5%AD%98%E7%BD%91%E7%BB%9C%E7%8A%B6%E6%80%81%E7%9A%84%E5%AE%8FNV-RESTORE"><span class="nav-number">1.</span> <span class="nav-text">Zigbee保存网络状态的宏NV_RESTORE</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%9E%E9%A1%BE%EF%BC%9AZigbee-%E7%BD%91%E7%BB%9C%E7%9A%84%E8%AE%BE%E5%A4%87%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">回顾：Zigbee 网络的设备类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PAN-ID"><span class="nav-number">1.2.</span> <span class="nav-text">PAN ID</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NV-RESTORE"><span class="nav-number">1.3.</span> <span class="nav-text">NV_RESTORE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Zigbee%E5%9C%B0%E5%9D%80%E4%B8%8E%E8%AE%BE%E5%A4%87%E5%85%A5%E7%BD%91"><span class="nav-number">1.4.</span> <span class="nav-text">Zigbee地址与设备入网</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">1.5.</span> <span class="nav-text">参考资料</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lyj789</p>
+  <div class="site-description" itemprop="description">快乐打工人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lyj789</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">94k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:25</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

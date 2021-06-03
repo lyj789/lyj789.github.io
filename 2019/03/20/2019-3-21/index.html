@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="差分隐私https:&#x2F;&#x2F;blog.csdn.net&#x2F;houzhizhen&#x2F;article&#x2F;details&#x2F;78327217  什么是隐私？  讲差分隐私前，我想说一下什么是隐私 其实隐私这个定义，各家有各家的说法，而且各人有各人不同的考量。目前普遍比较接受的是：“单个用户的某一些属性” 可以被看做是隐私。这个说法里所强调的是：单个用户。也就是说，如果是一群用户的某一些属性，那么可以不看做隐私。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2019&#x2F;3&#x2F;21">
+<meta property="og:url" content="http://example.com/2019/03/20/2019-3-21/index.html">
+<meta property="og:site_name" content="L1E6N0A2">
+<meta property="og:description" content="差分隐私https:&#x2F;&#x2F;blog.csdn.net&#x2F;houzhizhen&#x2F;article&#x2F;details&#x2F;78327217  什么是隐私？  讲差分隐私前，我想说一下什么是隐私 其实隐私这个定义，各家有各家的说法，而且各人有各人不同的考量。目前普遍比较接受的是：“单个用户的某一些属性” 可以被看做是隐私。这个说法里所强调的是：单个用户。也就是说，如果是一群用户的某一些属性，那么可以不看做隐私。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-03-20T08:57:15.000Z">
+<meta property="article:modified_time" content="2020-11-19T06:11:21.404Z">
+<meta property="article:author" content="lyj789">
+<meta property="article:tag" content="安全 网络 数据库">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2019/03/20/2019-3-21/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>2019/3/21 | L1E6N0A2</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">L1E6N0A2</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">监督自己不断学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/03/20/2019-3-21/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          2019/3/21
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-03-20 16:57:15" itemprop="dateCreated datePublished" datetime="2019-03-20T16:57:15+08:00">2019-03-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-11-19 14:11:21" itemprop="dateModified" datetime="2020-11-19T14:11:21+08:00">2020-11-19</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="差分隐私"><a href="#差分隐私" class="headerlink" title="差分隐私"></a>差分隐私</h4><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/houzhizhen/article/details/78327217">https://blog.csdn.net/houzhizhen/article/details/78327217</a></p>
+<ol>
+<li>什么是隐私？</li>
+</ol>
+<p>讲差分隐私前，我想说一下什么是隐私</p>
+<p>其实隐私这个定义，各家有各家的说法，而且各人有各人不同的考量。目前普遍比较接受的是：“单个用户的某一些属性” 可以被看做是隐私。这个说法里所强调的是：单个用户。也就是说，如果是一群用户的某一些属性，那么可以不看做隐私。</p>
+<a id="more"></a>
+
+<p>举个例子：医院说，抽烟的人有更高的几率会得肺癌。这个不泄露任何隐私。但是如果医院说，张三因为抽烟，所以有了肺癌。那么这个就是隐私泄露了。好，那么进一步，虽然医院发布的是趋势，说抽烟的人更高几率得肺癌。然后大家都知道张三抽烟，那么是不是张三就会有肺癌呢？那么这算不算隐私泄露呢？结论是不算，因为张三不一定有肺癌，大家只是通过一个趋势猜测的。</p>
+<p>所以，<strong>从隐私保护的角度来说，隐私的主体是单个用户，只有牵涉到某个特定用户的才叫隐私泄露，发布群体用户的信息（一般叫聚集信息）不算泄露隐私</strong>。 记得高德地图发过一张图，大意是开<a target="_blank" rel="noopener" href="https://www.baidu.com/s?wd=%E5%87%AF%E8%BF%AA%E6%8B%89%E5%85%8B&tn=24004469_oem_dg&rsv_dl=gh_pl_sl_csd">凯迪拉克</a>的群体喜欢去洗浴中心…….很多人说暴露隐私, 其实从学术定义上来说，这个不算隐私泄露，因为没有牵涉到任何个体。</p>
+<p>那么我们是不是可以任意发布聚集信息呢？倒是未必。我们设想这样一种情况：医院发布了一系列信息，说我们医院这个月有100个病人，其中有10个感染HIV。假如攻击者知道另外99个人是否有HIV的信息，那么他只需要把他知道的99个人的信息和医院发布的信息比对，就可以知道第100个人是否感染HIV。这种对隐私的攻击行为就是差分攻击。</p>
+<ol start="2">
+<li>差分隐私</li>
+</ol>
+<p>差分隐私顾名思义就是防止差分攻击了，它想做的事情就是即使你小子知道我发布的100个人的信息，以及另外99个人的信息，你也绝对没办法把这两个信息比对之后获取第100个人的信息。怎么才能做到这一点呢？差分隐私于是定义：<strong>如果你能找出一种方法让攻击者用某种方式查询100个信息和查询那99个信息得到的结果是一致的，那攻击者就没办法找出那第100个人的信息了。</strong>但这个“一致” 怎么做到呢？那就加入<strong>随机性</strong>吧。如果查询100个记录和查询99个记录，输出同样值的概率是一样的，攻击者就无法进行差分攻击。这里我们就得到了差分隐私的核心思想：<strong>对于差别只有一条记录的两个数据集，查询它们获得相同值的概率非常非常的接近</strong>。Wait，不是说一致的么？为什么变成了非常接近了？ 这是因为，如果概率一样，就表示数据集需要完全随机化，那数据的可用性就没有了，隐私保护也没有意义了。所以，我们尽可能的把概率做的接近，而不是一致，以期在隐私和可用性之间找一个平衡。</p>
+<ol start="3">
+<li>如何做到差分隐私</li>
+</ol>
+<p>其实就是在查询结果里加入随机性。</p>
+<p>任何一种方法，只要用在数据集上能满足差分隐私的核心思想，那这个方法就是满足差分隐私的。所以最常用的方法是在结果上加满足某种分布的<strong>噪音</strong>，使查询结果随机化。</p>
+<p>目前常用的有两种方法，一个是<strong>Laplace机制</strong>，在查询结果里加入Laplace分布的噪音，适用于数值型输出。例如：知乎里有多少人是985大学毕业的？ 假如结果是2000人，那么每一次查询得到的结果都会稍稍有些区别，比如有很高的概率输出2001，也有较高概率输出2010， 较低概率输出1990，等等。</p>
+<p>另外一个是<strong>指数机制</strong>，在查询结果里用指数分布来调整概率，适用于非数值型输出。例如：中国top 3大学是哪一所。很高概率输出 <a target="_blank" rel="noopener" href="https://www.baidu.com/s?wd=%E6%B5%99%E6%B1%9F%E5%A4%A7%E5%AD%A6&tn=24004469_oem_dg&rsv_dl=gh_pl_sl_csd">浙江大学</a>，较高概率输出上海交大，较低概率输出武汉大学，很低概率输出蓝翔技校，等等。</p>
+<ol start="4">
+<li>差分隐私应用</li>
+</ol>
+<p>这么说吧，任何需要保护隐私的算法里都可以使用差分隐私。差分隐私最美丽的一点在于只要你的算法每一个步骤都满足差分隐私的要求，那么它可以保证这个算法的最终输出结果满足差分隐私，换句话说，即使攻击者具有足够多的背景知识，也无法在最终的输出中找出单个人的某项属性。</p>
+<p>目前在学术上，差分隐私可以被应用在推荐系统，社交网络，基于位置的服务，当然，也包括了苹果的输入系统。</p>
+<ol start="5">
+<li>差分隐私的弱点</li>
+</ol>
+<p>差分隐私的弱点其实很明显：由于对于背景知识的假设过于强，需要在查询结果中加入大量的随机化，导致数据的可用性急剧下降。特别对于那些复杂的查询，有时候随机化结果几乎掩盖了真实结果。这也是导致目前应用不多的一个原因。</p>
+<p>但差分隐私作为一个非常漂亮的数学工具，为隐私研究指明了一个发展的方向。在早期，人们很难证明我的方法保护了隐私，更无法证明究竟保护了多少隐私。现在差分隐私用严格的数学证明告诉人们，只要你按照我的做，我就保证你的隐私不会泄露。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/03/20/2018-3-20/" rel="prev" title="2018/3/20">
+      <i class="fa fa-chevron-left"></i> 2018/3/20
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/11/17/%E5%AE%89%E5%8D%93%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89hook%E4%B8%8Exposed/" rel="next" title="安卓逆向学习（一）hook与xposed">
+      安卓逆向学习（一）hook与xposed <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81"><span class="nav-number">1.</span> <span class="nav-text">差分隐私</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lyj789</p>
+  <div class="site-description" itemprop="description">快乐打工人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lyj789</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">94k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:25</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

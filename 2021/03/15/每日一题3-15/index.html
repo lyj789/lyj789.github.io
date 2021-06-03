@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Z3求解器在CTF中的应用Postion——Reversing.kr首先题目描述如下：  Find the Name when the Serial is 76876-77776This problem has several answers. Password is ***p">
+<meta property="og:type" content="article">
+<meta property="og:title" content="每日一题3-15">
+<meta property="og:url" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/index.html">
+<meta property="og:site_name" content="L1E6N0A2">
+<meta property="og:description" content="Z3求解器在CTF中的应用Postion——Reversing.kr首先题目描述如下：  Find the Name when the Serial is 76876-77776This problem has several answers. Password is ***p">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/ida.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/ida.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/string.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/string.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/a.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/a.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/%E5%88%A4%E6%96%AD.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/判断.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/b.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/b.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/c.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/c.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/d.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/d.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/e.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/e.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/%E5%8F%B3%E7%A7%BB.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/右移.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/bump.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/bump.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/correct.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/correct.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/out.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/out.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/1-1.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/1-1.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/3-1.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/3-1.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/4-1.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/4-1.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/2-1.png">
+<meta property="og:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog/blog/source_posts/每日一题3-15/2-1.png">
+<meta property="article:published_time" content="2021-03-15T08:21:33.000Z">
+<meta property="article:modified_time" content="2021-03-19T07:18:41.284Z">
+<meta property="article:author" content="lyj789">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/ida.png">
+
+<link rel="canonical" href="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>每日一题3-15 | L1E6N0A2</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">L1E6N0A2</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">监督自己不断学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          每日一题3-15
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-15 16:21:33" itemprop="dateCreated datePublished" datetime="2021-03-15T16:21:33+08:00">2021-03-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-19 15:18:41" itemprop="dateModified" datetime="2021-03-19T15:18:41+08:00">2021-03-19</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Z3求解器在CTF中的应用"><a href="#Z3求解器在CTF中的应用" class="headerlink" title="Z3求解器在CTF中的应用"></a>Z3求解器在CTF中的应用</h2><h4 id="Postion——Reversing-kr"><a href="#Postion——Reversing-kr" class="headerlink" title="Postion——Reversing.kr"></a>Postion——Reversing.kr</h4><p>首先题目描述如下：</p>
+<blockquote>
+<p>Find the Name when the Serial is 76876-77776<br>This problem has several answers.</p>
+<p>Password is ***p</p>
+</blockquote>
+<a id="more"></a>
+
+<p>有一个Postion.exe，需要输入正确的用户名和对应的序列号，我们需要序列号76876-77776对应的用户名，根据题目用户名为4位，且最后一位是“p“。使用IDA打开程序。</p>
+<p>函数有点多，甚至找不到主要函数。</p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/ida.png" class title="ida">
+
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\ida.png" alt="ida"></p>
+<p>用ollydbg打开看一下。找到字符串”Wrong“和”Correct“，上面有一个调用（call Postion.00401740）</p>
+<p>猜测1740这个位置应该是判断逻辑的核心代码。</p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/string.png" class title="string">
+
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\string.png" alt="string"></p>
+<p>返回IDA，确定关键函数就是sub_CA1740了，只需要对这个函数进行分析就好了。F5查看伪代码。</p>
+<p>函数的大体思路就是经过一系列的if条件判断，判断成功之后会返回1（成功的标志）</p>
+<ol>
+<li>首先创建了三个变量，分别是name、serial和中间变量。</li>
+</ol>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/a.png" class title="a">
+
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\a.png" alt="1"></p>
+<ol start="2">
+<li><p>判断name的长度为4，取值范围从a-z，4个字母都满足条件后进入下面的if</p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/%E5%88%A4%E6%96%AD.png" class title="判断">
+
+</li>
+</ol>
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\判断.png" alt="判断"></p>
+<ol start="3">
+<li><p>GetWindowText获得输入的字符串，第一个是name（v50），第二个是serial（v51）</p>
+<p>要求name的四个输入为小写字母且各不相同。当name通过检查后，才会进行serial的获取。要求serial是一个长为11的字符串，且serial[5] ==’-‘</p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/b.png" class title="b">
+
+</li>
+</ol>
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\b.png" alt="2"></p>
+<ol start="4">
+<li><p>serial格式验证通过后就是通过name计算出结果，将结果与serial比对的过程。</p>
+<blockquote>
+<p>GetAt(a, pos) = a[pos]</p>
+<p>(a » count )&amp;1表示取a的第count+1位， ((name » 4) &amp; 1) 是取name从右向左第5个比特</p>
+</blockquote>
+<p>首先获得name[0]和name[1], 分别进行处理得到几个变量。</p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/c.png" class title="c">
+
+</li>
+</ol>
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\c.png" alt="3"></p>
+<p>​            之后比较serial[0]和v40+v8是否相同。</p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/d.png" class title="d">
+
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\d.png" alt="4"></p>
+<p>​            这个过程可以转化为一个等式约束：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">((username[<span class="number">0</span>]&amp;<span class="number">1</span>)+<span class="number">5</span>+((((username[<span class="number">1</span>]&amp;<span class="number">4</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">7</span></span><br></pre></td></tr></table></figure>
+
+<p>​            类似的，比较serial[1]和v46+v36是否相等。</p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/e.png" class title="e">
+
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\e.png" alt="5"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(((username[<span class="number">0</span>]&amp;<span class="number">8</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">1</span>]&amp;<span class="number">8</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">6</span></span><br></pre></td></tr></table></figure>
+
+<p>以此类推，可以得到10个不等式作为约束条件。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">((username[<span class="number">0</span>]&amp;<span class="number">1</span>)+<span class="number">5</span>+((((username[<span class="number">1</span>]&amp;<span class="number">4</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">7</span></span><br><span class="line">(((username[<span class="number">0</span>]&amp;<span class="number">8</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">1</span>]&amp;<span class="number">8</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">6</span></span><br><span class="line">(((username[<span class="number">0</span>]&amp;<span class="number">2</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">1</span>]&amp;<span class="number">0x10</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">8</span></span><br><span class="line">(((username[<span class="number">0</span>]&amp;<span class="number">4</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">1</span>]&amp;<span class="number">1</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">7</span></span><br><span class="line">(((username[<span class="number">0</span>]&amp;<span class="number">0x10</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">1</span>]&amp;<span class="number">2</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">6</span></span><br><span class="line">((username[<span class="number">2</span>]&amp;<span class="number">1</span>)+<span class="number">5</span>+((((username[<span class="number">3</span>]&amp;<span class="number">4</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">7</span></span><br><span class="line">(((username[<span class="number">2</span>]&amp;<span class="number">8</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">3</span>]&amp;<span class="number">8</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">7</span></span><br><span class="line">(((username[<span class="number">2</span>]&amp;<span class="number">2</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">3</span>]&amp;<span class="number">0x10</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">7</span></span><br><span class="line">(((username[<span class="number">2</span>]&amp;<span class="number">4</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">3</span>]&amp;<span class="number">1</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">7</span></span><br><span class="line">(((username[<span class="number">2</span>]&amp;<span class="number">0x10</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">3</span>]&amp;<span class="number">2</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">6</span></span><br></pre></td></tr></table></figure>
+
+<p>程序分析完毕，根据下面的约束，编写程序利用Z3求解器求解得到name：</p>
+<p>（1）上面的10个约束方式</p>
+<p>（2）题目中给出的name[3]=’p’</p>
+<p>（3）name有4位，每位取值范围a-z</p>
+<blockquote>
+<p>Z3安装很简单：pip install z3-solver</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> z3 <span class="keyword">import</span> *</span><br><span class="line"><span class="comment">#创建四个符号变量</span></span><br><span class="line">username = [BitVec(<span class="string">&#x27;u%d&#x27;</span>%i,<span class="number">8</span>) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">4</span>)]</span><br><span class="line">solver = Solver() </span><br><span class="line"><span class="comment">#设置约束条件</span></span><br><span class="line">solver.add(((username[<span class="number">0</span>]&amp;<span class="number">1</span>)+<span class="number">5</span>+((((username[<span class="number">1</span>]&amp;<span class="number">4</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">7</span>)</span><br><span class="line">solver.add((((username[<span class="number">0</span>]&amp;<span class="number">8</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">1</span>]&amp;<span class="number">8</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">6</span>)</span><br><span class="line">solver.add((((username[<span class="number">0</span>]&amp;<span class="number">2</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">1</span>]&amp;<span class="number">0x10</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">8</span>)</span><br><span class="line">solver.add((((username[<span class="number">0</span>]&amp;<span class="number">4</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">1</span>]&amp;<span class="number">1</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">7</span>)</span><br><span class="line">solver.add((((username[<span class="number">0</span>]&amp;<span class="number">0x10</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">1</span>]&amp;<span class="number">2</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">6</span>)</span><br><span class="line">solver.add(((username[<span class="number">2</span>]&amp;<span class="number">1</span>)+<span class="number">5</span>+((((username[<span class="number">3</span>]&amp;<span class="number">4</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">7</span>)</span><br><span class="line">solver.add((((username[<span class="number">2</span>]&amp;<span class="number">8</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">3</span>]&amp;<span class="number">8</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">7</span>)</span><br><span class="line">solver.add((((username[<span class="number">2</span>]&amp;<span class="number">2</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">3</span>]&amp;<span class="number">0x10</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">7</span>)</span><br><span class="line">solver.add((((username[<span class="number">2</span>]&amp;<span class="number">4</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">3</span>]&amp;<span class="number">1</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">7</span>)</span><br><span class="line">solver.add((((username[<span class="number">2</span>]&amp;<span class="number">0x10</span>)!=<span class="number">0</span>)+<span class="number">5</span>+((((username[<span class="number">3</span>]&amp;<span class="number">2</span>)!=<span class="number">0</span>) +<span class="number">1</span>))== <span class="number">6</span>)</span><br><span class="line">solver.add(username[<span class="number">3</span>] == <span class="built_in">ord</span>(<span class="string">&#x27;p&#x27;</span>))</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">4</span>):</span><br><span class="line">    solver.add(username[i] &gt;= <span class="built_in">ord</span>(<span class="string">&#x27;a&#x27;</span>))</span><br><span class="line">    solver.add(username[i] &lt;= <span class="built_in">ord</span>(<span class="string">&#x27;z&#x27;</span>))</span><br><span class="line"></span><br><span class="line">solver.check()</span><br><span class="line">result = solver.model()</span><br><span class="line"></span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">4</span>):</span><br><span class="line">    flag += <span class="built_in">chr</span>(result[username[i]].as_long().real)</span><br><span class="line"><span class="built_in">print</span> flag</span><br></pre></td></tr></table></figure>
+
+<p>这样的程序，<code>!=0</code>运算得到的是BoolRef类型的，和int型无法做加法，类型转化无法实现</p>
+<p>阅读汇编代码，<code>shr</code>右移指令，可以把约束进行等价修改。</p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/%E5%8F%B3%E7%A7%BB.png" class title="右移">
+
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\右移.png" alt="右移"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">((username[<span class="number">0</span>]&amp;<span class="number">1</span>)+<span class="number">5</span>+(((username[<span class="number">1</span>]&gt;&gt;<span class="number">2</span>) &amp; <span class="number">1</span> )+<span class="number">1</span>))==<span class="number">7</span></span><br><span class="line">((((username[<span class="number">0</span>]&gt;&gt;<span class="number">3</span>) &amp; <span class="number">1</span>)+<span class="number">5</span>)+(((username[<span class="number">1</span>]&gt;&gt;<span class="number">3</span>)&amp;<span class="number">1</span>)+<span class="number">1</span>))==<span class="number">6</span></span><br><span class="line">(((username[<span class="number">0</span>]&gt;&gt;<span class="number">1</span>) &amp; <span class="number">1</span>)+<span class="number">5</span>+(((username[<span class="number">1</span>]&gt;&gt;<span class="number">4</span>) &amp; <span class="number">1</span> )+<span class="number">1</span>))==<span class="number">8</span></span><br><span class="line">(((username[<span class="number">0</span>]&gt;&gt;<span class="number">2</span>) &amp; <span class="number">1</span>)+<span class="number">5</span>+(((username[<span class="number">1</span>]) &amp; <span class="number">1</span> )+<span class="number">1</span>))==<span class="number">7</span></span><br><span class="line">(((username[<span class="number">0</span>]&gt;&gt;<span class="number">4</span>) &amp; <span class="number">1</span>)+<span class="number">5</span>+(((username[<span class="number">1</span>]&gt;&gt;<span class="number">1</span>) &amp; <span class="number">1</span> )+<span class="number">1</span>))==<span class="number">6</span></span><br><span class="line">(((username[<span class="number">2</span>]) &amp; <span class="number">1</span>)+<span class="number">5</span>+(((username[<span class="number">3</span>]&gt;&gt;<span class="number">2</span>) &amp; <span class="number">1</span> )+<span class="number">1</span>))==<span class="number">7</span></span><br><span class="line">(((username[<span class="number">2</span>]&gt;&gt;<span class="number">3</span>) &amp; <span class="number">1</span>)+<span class="number">5</span>+(((username[<span class="number">3</span>]&gt;&gt;<span class="number">3</span>) &amp; <span class="number">1</span> )+<span class="number">1</span>))==<span class="number">7</span></span><br><span class="line">(((username[<span class="number">2</span>]&gt;&gt;<span class="number">1</span>) &amp; <span class="number">1</span>)+<span class="number">5</span>+(((username[<span class="number">3</span>]&gt;&gt;<span class="number">4</span>) &amp; <span class="number">1</span> )+<span class="number">1</span>))==<span class="number">7</span></span><br><span class="line">(((username[<span class="number">2</span>]&gt;&gt;<span class="number">2</span>) &amp; <span class="number">1</span>)+<span class="number">5</span>+(((username[<span class="number">3</span>]) &amp; <span class="number">1</span> )+<span class="number">1</span>))==<span class="number">7</span></span><br><span class="line">(((username[<span class="number">2</span>]&gt;&gt;<span class="number">4</span>) &amp; <span class="number">1</span>)+<span class="number">5</span>+(((username[<span class="number">3</span>]&gt;&gt;<span class="number">1</span>) &amp; <span class="number">1</span> )+<span class="number">1</span>))==<span class="number">6</span></span><br></pre></td></tr></table></figure>
+
+<p>运行之后得到输出 <code>bump</code>，只是其中一个解</p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/bump.png" class title="bump">
+
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\bump.png" alt="bump"></p>
+<p>验证一下正确。</p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/correct.png" class title="correct">
+
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\correct.png" alt="correct"></p>
+<p>如果想把所有的解都输出，可以对代码进行下面的修改。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(solver.check()==sat):</span><br><span class="line">    condition = []</span><br><span class="line">    m = solver.model()</span><br><span class="line">    p=<span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">4</span>):</span><br><span class="line">      p+=<span class="built_in">chr</span>(m[username[i]].as_long())</span><br><span class="line">      condition.append(username[i] != <span class="built_in">int</span>(<span class="string">&quot;%s&quot;</span> % (m[username[i]])))</span><br><span class="line">    print(p)</span><br><span class="line">    <span class="comment"># Or:condition中有很多约束，为了去掉新的解和已有的解每一位都一样的那种重复情况</span></span><br><span class="line">    <span class="comment"># https://blog.csdn.net/qq_37400312/article/details/108962459</span></span><br><span class="line">    solver.add(Or(condition))</span><br></pre></td></tr></table></figure>
+
+<p>输出结果如下，这四个都可以，但是gpmp不符合要求，因为程序中规定了不允许有重复的字符出现，其他三个都是正确的username。</p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/out.png" class title="out">
+
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\out.png" alt="out"></p>
+<h4 id="问题："><a href="#问题：" class="headerlink" title="问题："></a>问题：</h4><ol>
+<li>as_long函数是什么？ 类型转化</li>
+<li>！=0 boolref的类型转化可以解决吗？不能解决</li>
+</ol>
+<h4 id="Re"><a href="#Re" class="headerlink" title="Re"></a>Re</h4><p>首先拉入IDA，反编译查看源码</p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/1-1.png" class title="1-1">
+
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\1-1.png" alt="1-1"></p>
+<p>程序输入两个参数，第二个参数的长度不能超过0xF（15位）且第二个参数的前7位的asc码的和要等于801，如果等于801，就输出flag。</p>
+<p>所以我们的目标是构造第二个输入，使之满足要求。代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> z3 <span class="keyword">import</span> *</span><br><span class="line">solver = Solver()</span><br><span class="line"><span class="comment"># 创建7个符号变量</span></span><br><span class="line">pwd = [Int(<span class="string">&#x27;a%d&#x27;</span> % i) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>)]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置7个字符的取值范围在32-126之间(可见字符)</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> pwd:</span><br><span class="line">    solver.add(i &gt;= <span class="number">32</span>) <span class="comment">#48</span></span><br><span class="line">    solver.add(i &lt; <span class="number">127</span>) <span class="comment">#123</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 相加为801</span></span><br><span class="line">solver.add(pwd[<span class="number">0</span>] + pwd[<span class="number">1</span>] + pwd[<span class="number">2</span>] + pwd[<span class="number">3</span>] + pwd[<span class="number">4</span>] + pwd[<span class="number">5</span>] + pwd[<span class="number">6</span>] == <span class="number">801</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:</span><br><span class="line">    password = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    result = solver.model()</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>):</span><br><span class="line">        password += (<span class="built_in">chr</span>(result[pwd[i]].as_long()))</span><br><span class="line">    <span class="built_in">print</span> (password)</span><br></pre></td></tr></table></figure>
+
+<p>输出一组答案，看上去很奇怪，可以修改pwd的取值范围，改为48-122（数字+字母），得到新的答案，经过验证都正确，得到flag：SAYCURE{L3ts_g3t_in2_R3}</p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/3-1.png" class title="3-1">
+
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\3-1.png" alt="3-1"></p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/4-1.png" class title="4-1">
+
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\4-1.png" alt="4-1"></p>
+<img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/2-1.png" class title="2-1">
+
+<p><img src="/2021/03/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-15/Blog\blog\source_posts\每日一题3-15\2-1.png" alt="2-1"></p>
+<p>（需要注意的是，re2文件需要在linux环境下执行）</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/03/04/IoT%E5%AD%A6%E4%B9%A0%E4%B9%8Bzigbee%E8%AE%BE%E5%A4%87%E5%BC%80%E5%8F%91/" rel="prev" title="IoT学习之zigbee设备开发">
+      <i class="fa fa-chevron-left"></i> IoT学习之zigbee设备开发
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/03/19/%E5%AE%89%E5%8D%93%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%EF%BC%88%E5%9B%9B%EF%BC%89apk%E5%8F%8D%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B/" rel="next" title="安卓逆向学习（四）apk反编译流程">
+      安卓逆向学习（四）apk反编译流程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Z3%E6%B1%82%E8%A7%A3%E5%99%A8%E5%9C%A8CTF%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">Z3求解器在CTF中的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Postion%E2%80%94%E2%80%94Reversing-kr"><span class="nav-number">1.0.1.</span> <span class="nav-text">Postion——Reversing.kr</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="nav-number">1.0.2.</span> <span class="nav-text">问题：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Re"><span class="nav-number">1.0.3.</span> <span class="nav-text">Re</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lyj789</p>
+  <div class="site-description" itemprop="description">快乐打工人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lyj789</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">94k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:25</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

