@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="zzzz准备实战，python，tensorflow，keras，Scikit-learn 第三天（《python自然语言处理实战》） jieba分词  准确模式：最精确的分开，适合文本分析 全模式：把句子里的所有单词扫描出来，不能解决歧义 搜索引擎模式：在精准模式的基础上，对长词再次切分（会把所有可能的词输出）   常用的无监督关键词提取算法  TF-IDF TextRank：hanlp的ext">
+  <meta name="description" content="zzzz准备实战，python，tensorflow，keras，Scikit-learn 第三天（《python自然语言处理实战》） jieba分词  准确模式：最精确的分开，适合文本分析 全模式：把句子里的所有单词扫描出来，不能解决歧义 搜索引擎模式：在精准模式的基础上，对长词再次切分（会把所有可能的词输出）">
 <meta property="og:type" content="article">
 <meta property="og:title" content="NLP入门（二）">
 <meta property="og:url" content="http://example.com/2021/06/03/NLP%E5%85%A5%E9%97%A8%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
 <meta property="og:site_name" content="L1E6N0A2">
-<meta property="og:description" content="zzzz准备实战，python，tensorflow，keras，Scikit-learn 第三天（《python自然语言处理实战》） jieba分词  准确模式：最精确的分开，适合文本分析 全模式：把句子里的所有单词扫描出来，不能解决歧义 搜索引擎模式：在精准模式的基础上，对长词再次切分（会把所有可能的词输出）   常用的无监督关键词提取算法  TF-IDF TextRank：hanlp的ext">
+<meta property="og:description" content="zzzz准备实战，python，tensorflow，keras，Scikit-learn 第三天（《python自然语言处理实战》） jieba分词  准确模式：最精确的分开，适合文本分析 全模式：把句子里的所有单词扫描出来，不能解决歧义 搜索引擎模式：在精准模式的基础上，对长词再次切分（会把所有可能的词输出）">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-06-03T12:36:38.000Z">
-<meta property="article:modified_time" content="2021-06-07T02:56:21.328Z">
+<meta property="article:modified_time" content="2021-07-15T08:08:26.745Z">
 <meta property="article:author" content="lyj789">
 <meta property="article:tag" content="NLP">
 <meta name="twitter:card" content="summary">
@@ -182,7 +182,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-07 10:56:21" itemprop="dateModified" datetime="2021-06-07T10:56:21+08:00">2021-06-07</time>
+                <time title="修改时间：2021-07-15 16:08:26" itemprop="dateModified" datetime="2021-07-15T16:08:26+08:00">2021-07-15</time>
               </span>
 
           
@@ -225,6 +225,7 @@
 <li>全模式：把句子里的所有单词扫描出来，不能解决歧义</li>
 <li>搜索引擎模式：在精准模式的基础上，对长词再次切分（会把所有可能的词输出）</li>
 </ul>
+<a id="more"></a>
 </li>
 <li><p>常用的无监督关键词提取算法</p>
 <ul>
@@ -262,25 +263,18 @@
 </ul>
 </li>
 </ul>
-<p>收集</p>
-<p>cookie</p>
-<p>共享</p>
-<p>保护措施</p>
-<p>权利</p>
-<p>儿童</p>
-<p>全球转移</p>
-<p>联系</p>
-<p>更新</p>
 <h4 id="现有的文本分类算法"><a href="#现有的文本分类算法" class="headerlink" title="现有的文本分类算法"></a>现有的文本分类算法</h4><h5 id="word2vec预训练词向量"><a href="#word2vec预训练词向量" class="headerlink" title="word2vec预训练词向量"></a>word2vec预训练词向量</h5><h5 id="textCNN-模型"><a href="#textCNN-模型" class="headerlink" title="textCNN 模型"></a>textCNN 模型</h5><h5 id="charCNN-模型"><a href="#charCNN-模型" class="headerlink" title="charCNN 模型"></a>charCNN 模型</h5><p>不利于处理长文本的分类</p>
 <h5 id="Bi-LSTM-模型"><a href="#Bi-LSTM-模型" class="headerlink" title="Bi-LSTM 模型"></a>Bi-LSTM 模型</h5><p>Bi-LSTM即双向LSTM，较单向的LSTM，Bi-LSTM能更好地捕获句子中上下文的信息。</p>
 <p>（LSTM是RNN的变体，RNN假设我们的<strong>样本是基于序列的</strong>。比如一段段连续的语音，一段段连续的手写文字。）</p>
 <h5 id="Bi-LSTM-Attention-模型"><a href="#Bi-LSTM-Attention-模型" class="headerlink" title="Bi-LSTM + Attention 模型"></a>Bi-LSTM + Attention 模型</h5><p>Bi-LSTM + Attention模型来源于论文Attention-Based Bidirectional Long Short-Term Memory Networks for Relation Classification。 </p>
 <p>Bi-LSTM + Attention 就是在Bi-LSTM的模型上加入Attention层，在Bi-LSTM中我们会用最后一个时序 的输出向量 作为特征向量，然后进行softmax分类。Attention是先计算每个时序的权重，然后将所有时序 的向量进行加权和作为特征向量，然后进行softmax分类。在实验中，加上Attention确实对结果有所提升。</p>
 <h5 id="Transformer-模型"><a href="#Transformer-模型" class="headerlink" title="Transformer 模型"></a>Transformer 模型</h5><p>对于Transformer来说，需要明确加入位置编码学习position Embedding。因为对于self  Attention来说，它让当前输入单词和句子中任意单词进行相似计算，然后归一化计算出句子中各个单词对应的权重，再利用权重与各个单词对应的变换后V值相乘累加，得出集中后的embedding向量，此间是损失掉了位置信息的。因此，为了引入位置信息编码，Transformer对每个单词一个Position embedding，将单词embedding和单词对应的position embedding加起来形成单词的输入embedding。</p>
+<blockquote>
 <p>Doc2Vec+LR  /hanlp/py</p>
 <p>CNN </p>
 <p>RNN</p>
 <p>TF-IDF+贝叶斯    /CSDN/homework3.py</p>
+</blockquote>
 
     </div>
 

@@ -272,7 +272,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-07 10:56:21" itemprop="dateModified" datetime="2021-06-07T10:56:21+08:00">2021-06-07</time>
+                <time title="修改时间：2021-07-15 16:08:26" itemprop="dateModified" datetime="2021-07-15T16:08:26+08:00">2021-07-15</time>
               </span>
 
           <br>
@@ -307,64 +307,15 @@
 <li>准确模式：最精确的分开，适合文本分析</li>
 <li>全模式：把句子里的所有单词扫描出来，不能解决歧义</li>
 <li>搜索引擎模式：在精准模式的基础上，对长词再次切分（会把所有可能的词输出）</li>
-</ul>
-</li>
-<li><p>常用的无监督关键词提取算法</p>
-<ul>
-<li>TF-IDF</li>
-<li>TextRank：hanlp的extractKeyword（提取关键词）、extractSummary（自动摘要 ）</li>
-<li>主体模型算法：对文档的隐含语义结构进行聚类（原理还是不太理解，已经没人用了）<ul>
-<li>LDA:《基于特征选择及LDA模型的中文文本分类研究与实现》准确率不理想</li>
-<li>LSI/LSA</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>常见的文本分类算法</p>
-<ul>
-<li>逻辑回归（LR）</li>
-<li>支持向量机（SVM）</li>
-<li>K近邻居（KNN）</li>
-<li>决策树（DT）</li>
-<li>神经网络（NN）</li>
-</ul>
-</li>
-<li><p>文本分类的步骤</p>
-<ul>
-<li>定义阶段：定义数据以及分类体系（具体分为哪几种）</li>
-<li>数据预处理（对文档进行分词，去掉停用词等）</li>
-<li>数据特征提取（对文档矩阵降维，提取训练集中最有用的特征）<ul>
-<li>Bag-of-words</li>
-<li>统计特征：TF，IDF，TF-IDF</li>
-<li>N_-Gram</li>
-</ul>
-</li>
-<li>模型训练：选择模型和算法，训练出文本分类器</li>
-<li>评测：在测试集上测试评评估分类器的性能</li>
-<li>应用：对待分类的文档进行分类</li>
-</ul>
-</li>
-</ul>
-<p>收集</p>
-<p>cookie</p>
-<p>共享</p>
-<p>保护措施</p>
-<p>权利</p>
-<p>儿童</p>
-<p>全球转移</p>
-<p>联系</p>
-<p>更新</p>
-<h4 id="现有的文本分类算法"><a href="#现有的文本分类算法" class="headerlink" title="现有的文本分类算法"></a>现有的文本分类算法</h4><h5 id="word2vec预训练词向量"><a href="#word2vec预训练词向量" class="headerlink" title="word2vec预训练词向量"></a>word2vec预训练词向量</h5><h5 id="textCNN-模型"><a href="#textCNN-模型" class="headerlink" title="textCNN 模型"></a>textCNN 模型</h5><h5 id="charCNN-模型"><a href="#charCNN-模型" class="headerlink" title="charCNN 模型"></a>charCNN 模型</h5><p>不利于处理长文本的分类</p>
-<h5 id="Bi-LSTM-模型"><a href="#Bi-LSTM-模型" class="headerlink" title="Bi-LSTM 模型"></a>Bi-LSTM 模型</h5><p>Bi-LSTM即双向LSTM，较单向的LSTM，Bi-LSTM能更好地捕获句子中上下文的信息。</p>
-<p>（LSTM是RNN的变体，RNN假设我们的<strong>样本是基于序列的</strong>。比如一段段连续的语音，一段段连续的手写文字。）</p>
-<h5 id="Bi-LSTM-Attention-模型"><a href="#Bi-LSTM-Attention-模型" class="headerlink" title="Bi-LSTM + Attention 模型"></a>Bi-LSTM + Attention 模型</h5><p>Bi-LSTM + Attention模型来源于论文Attention-Based Bidirectional Long Short-Term Memory Networks for Relation Classification。 </p>
-<p>Bi-LSTM + Attention 就是在Bi-LSTM的模型上加入Attention层，在Bi-LSTM中我们会用最后一个时序 的输出向量 作为特征向量，然后进行softmax分类。Attention是先计算每个时序的权重，然后将所有时序 的向量进行加权和作为特征向量，然后进行softmax分类。在实验中，加上Attention确实对结果有所提升。</p>
-<h5 id="Transformer-模型"><a href="#Transformer-模型" class="headerlink" title="Transformer 模型"></a>Transformer 模型</h5><p>对于Transformer来说，需要明确加入位置编码学习position Embedding。因为对于self  Attention来说，它让当前输入单词和句子中任意单词进行相似计算，然后归一化计算出句子中各个单词对应的权重，再利用权重与各个单词对应的变换后V值相乘累加，得出集中后的embedding向量，此间是损失掉了位置信息的。因此，为了引入位置信息编码，Transformer对每个单词一个Position embedding，将单词embedding和单词对应的position embedding加起来形成单词的输入embedding。</p>
-<p>Doc2Vec+LR  /hanlp/py</p>
-<p>CNN </p>
-<p>RNN</p>
-<p>TF-IDF+贝叶斯    /CSDN/homework3.py</p>
-
+</ul></li></ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/06/03/NLP%E5%85%A5%E9%97%A8%EF%BC%88%E4%BA%8C%EF%BC%89/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
