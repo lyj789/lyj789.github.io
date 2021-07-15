@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="XSS-跨站脚本攻击靶场： https:&#x2F;&#x2F;xss.haozi.me&#x2F;； https:&#x2F;&#x2F;xss.angelo.org.cn&#x2F;； https:&#x2F;&#x2F;xss-game.appspot.com 转自：http:&#x2F;&#x2F;flag0.com&#x2F;2019&#x2F;09&#x2F;17&#x2F;xss%E9%9D%B6%E5%9C%BA%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0&#x2F;">
+  <meta name="description" content="zzzz准备实战，python，tensorflow，keras，Scikit-learn 第三天（《python自然语言处理实战》） jieba分词  准确模式：最精确的分开，适合文本分析 全模式：把句子里的所有单词扫描出来，不能解决歧义 搜索引擎模式：在精准模式的基础上，对长词再次切分（会把所有可能的词输出）   常用的无监督关键词提取算法  TF-IDF TextRank：hanlp的ext">
 <meta property="og:type" content="article">
-<meta property="og:title" content="每日一题3-27">
-<meta property="og:url" content="http://example.com/2021/03/27/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-27/index.html">
+<meta property="og:title" content="NLP入门（二）">
+<meta property="og:url" content="http://example.com/2021/06/03/NLP%E5%85%A5%E9%97%A8%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
 <meta property="og:site_name" content="L1E6N0A2">
-<meta property="og:description" content="XSS-跨站脚本攻击靶场： https:&#x2F;&#x2F;xss.haozi.me&#x2F;； https:&#x2F;&#x2F;xss.angelo.org.cn&#x2F;； https:&#x2F;&#x2F;xss-game.appspot.com 转自：http:&#x2F;&#x2F;flag0.com&#x2F;2019&#x2F;09&#x2F;17&#x2F;xss%E9%9D%B6%E5%9C%BA%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0&#x2F;">
+<meta property="og:description" content="zzzz准备实战，python，tensorflow，keras，Scikit-learn 第三天（《python自然语言处理实战》） jieba分词  准确模式：最精确的分开，适合文本分析 全模式：把句子里的所有单词扫描出来，不能解决歧义 搜索引擎模式：在精准模式的基础上，对长词再次切分（会把所有可能的词输出）   常用的无监督关键词提取算法  TF-IDF TextRank：hanlp的ext">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-03-27T06:06:54.000Z">
-<meta property="article:modified_time" content="2021-03-27T06:36:57.620Z">
+<meta property="article:published_time" content="2021-06-03T12:36:38.000Z">
+<meta property="article:modified_time" content="2021-06-07T02:56:21.328Z">
 <meta property="article:author" content="lyj789">
-<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="NLP">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2021/03/27/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-27/">
+<link rel="canonical" href="http://example.com/2021/06/03/NLP%E5%85%A5%E9%97%A8%EF%BC%88%E4%BA%8C%EF%BC%89/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>每日一题3-27 | L1E6N0A2</title>
+  <title>NLP入门（二） | L1E6N0A2</title>
   
 
 
@@ -152,7 +152,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/27/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-27/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/03/NLP%E5%85%A5%E9%97%A8%EF%BC%88%E4%BA%8C%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -165,7 +165,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          每日一题3-27
+          NLP入门（二）
         </h1>
 
         <div class="post-meta">
@@ -174,10 +174,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-03-27 14:06:54 / 修改时间：14:36:57" itemprop="dateCreated datePublished" datetime="2021-03-27T14:06:54+08:00">2021-03-27</time>
+              <time title="创建时间：2021-06-03 20:36:38" itemprop="dateCreated datePublished" datetime="2021-06-03T20:36:38+08:00">2021-06-03</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-07 10:56:21" itemprop="dateModified" datetime="2021-06-07T10:56:21+08:00">2021-06-07</time>
+              </span>
 
           
             <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
@@ -211,89 +217,70 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="XSS-跨站脚本攻击"><a href="#XSS-跨站脚本攻击" class="headerlink" title="XSS-跨站脚本攻击"></a>XSS-跨站脚本攻击</h3><p><strong>靶场</strong>：</p>
-<p><a target="_blank" rel="noopener" href="https://xss.haozi.me/%EF%BC%9B">https://xss.haozi.me/；</a></p>
-<p><a target="_blank" rel="noopener" href="https://xss.angelo.org.cn/%EF%BC%9B">https://xss.angelo.org.cn/；</a></p>
-<p><a target="_blank" rel="noopener" href="https://xss-game.appspot.com/">https://xss-game.appspot.com</a></p>
-<p>转自：<a target="_blank" rel="noopener" href="http://flag0.com/2019/09/17/xss%E9%9D%B6%E5%9C%BA%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0/">http://flag0.com/2019/09/17/xss%E9%9D%B6%E5%9C%BA%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0/</a></p>
-<a id="more"></a>
-
-<p><strong>反射型xss</strong></p>
-<p>发出带xss攻击代码的请求，作为输入提交到服务端，服务端响应后，在响应内容中出现xss攻击代码，最终被浏览器执行，整个过程像一次反射。</p>
-<p><strong>存储型xss</strong></p>
-<p>提交的xss攻击代码，会被存储的服务端，下次请求该页面时会被显示出来。</p>
-<p><strong>DOM型xss</strong></p>
-<p>攻击者提交的攻击代码并未显式的包含在web服务器的响应页面中，但会被页面中的js脚本以变量的形式来访问到，导致浏览器在渲染页面执行js脚本的过程中，通过DOM操作执行变量所代表的恶意脚本。</p>
-<h4 id="关于JavaScript"><a href="#关于JavaScript" class="headerlink" title="关于JavaScript"></a>关于JavaScript</h4><ul>
-<li>JavaScript是一种客户端的脚本语言，是运行的浏览器中的</li>
-<li>浏览器会自动运行网页中的JavaScript代码，并且JavaScript代码对于用户来说是透明的</li>
-<li>网页中运行JavaScript的方式<ul>
-<li>引入外部js</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script src&#x3D;&quot;https:&#x2F;&#x2F;cdn.staticfile.org&#x2F;angular.js&#x2F;1.4.6&#x2F;angular.min.js&quot;&lt;&#x2F;script&gt;</span><br></pre></td></tr></table></figure>
-
+        <p>zzzz准备实战，python，tensorflow，keras，Scikit-learn</p>
+<h4 id="第三天（《python自然语言处理实战》）"><a href="#第三天（《python自然语言处理实战》）" class="headerlink" title="第三天（《python自然语言处理实战》）"></a>第三天（《python自然语言处理实战》）</h4><ul>
+<li><p>jieba分词</p>
 <ul>
-<li><p>使用超链接(javascript伪协议)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href&#x3D;&quot;javascript:alert(111)&quot;&gt;&lt;&#x2F;a&gt;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用标签</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;alert(1)&lt;&#x2F;script&gt;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用事件方法</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src&#x3D;1 onerror&#x3D;alert(1)&gt;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>网页可以通过事件与用户进行交互</p>
-</li>
-<li><p>浏览器中可以选择禁用JavaScript代码</p>
-</li>
+<li>准确模式：最精确的分开，适合文本分析</li>
+<li>全模式：把句子里的所有单词扫描出来，不能解决歧义</li>
+<li>搜索引擎模式：在精准模式的基础上，对长词再次切分（会把所有可能的词输出）</li>
 </ul>
-<h4 id="html与js基础"><a href="#html与js基础" class="headerlink" title="html与js基础"></a>html与js基础</h4><p><strong>1.在超链接执行js代码</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href&#x3D;&quot;javascript:alert(1)&quot;&gt;ccc&lt;&#x2F;a&gt;</span><br></pre></td></tr></table></figure>
-
+</li>
+<li><p>常用的无监督关键词提取算法</p>
 <ul>
-<li>javascript //js伪协议</li>
+<li>TF-IDF</li>
+<li>TextRank：hanlp的extractKeyword（提取关键词）、extractSummary（自动摘要 ）</li>
+<li>主体模型算法：对文档的隐含语义结构进行聚类（原理还是不太理解，已经没人用了）<ul>
+<li>LDA:《基于特征选择及LDA模型的中文文本分类研究与实现》准确率不理想</li>
+<li>LSI/LSA</li>
 </ul>
-<p><strong>2.通过事件属性执行js代码(通过属性事件执行时，可以加引号，也可以不加引号)</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src&#x3D;1 onerror&#x3D;alert(1)&gt;</span><br><span class="line">&lt;input type&#x3D;&quot;text&quot; onclick&#x3D;&quot;alert(1)&quot;&gt;</span><br></pre></td></tr></table></figure>
-
-<p>常见事件</p>
-<table>
-<thead>
-<tr>
-<th align="left">事件名称</th>
-<th align="left">类型</th>
-<th align="left">作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">onerror</td>
-<td align="left">Window 事件属性</td>
-<td align="left">在错误发生时运行的脚本。</td>
-</tr>
-<tr>
-<td align="left">onload</td>
-<td align="left">Window 事件属性</td>
-<td align="left">页面加载结束以后运行脚本</td>
-</tr>
-<tr>
-<td align="left">onclick</td>
-<td align="left">Mouse 事件</td>
-<td align="left">元素上发生鼠标点击时触发。</td>
-</tr>
-<tr>
-<td align="left">onmouseover</td>
-<td align="left">Mouse 事件</td>
-<td align="left">当鼠标指针移动到元素上时触发。</td>
-</tr>
-<tr>
-<td align="left">oninput</td>
-<td align="left">From事件</td>
-<td align="left">当元素获得用户输入时运行的脚本。</td>
-</tr>
-</tbody></table>
-<p>xss.haozi.me靶场优质WP：<a target="_blank" rel="noopener" href="https://mokyan.github.io/post/xsshaozime/">https://mokyan.github.io/post/xsshaozime/</a></p>
+</li>
+</ul>
+</li>
+<li><p>常见的文本分类算法</p>
+<ul>
+<li>逻辑回归（LR）</li>
+<li>支持向量机（SVM）</li>
+<li>K近邻居（KNN）</li>
+<li>决策树（DT）</li>
+<li>神经网络（NN）</li>
+</ul>
+</li>
+<li><p>文本分类的步骤</p>
+<ul>
+<li>定义阶段：定义数据以及分类体系（具体分为哪几种）</li>
+<li>数据预处理（对文档进行分词，去掉停用词等）</li>
+<li>数据特征提取（对文档矩阵降维，提取训练集中最有用的特征）<ul>
+<li>Bag-of-words</li>
+<li>统计特征：TF，IDF，TF-IDF</li>
+<li>N_-Gram</li>
+</ul>
+</li>
+<li>模型训练：选择模型和算法，训练出文本分类器</li>
+<li>评测：在测试集上测试评评估分类器的性能</li>
+<li>应用：对待分类的文档进行分类</li>
+</ul>
+</li>
+</ul>
+<p>收集</p>
+<p>cookie</p>
+<p>共享</p>
+<p>保护措施</p>
+<p>权利</p>
+<p>儿童</p>
+<p>全球转移</p>
+<p>联系</p>
+<p>更新</p>
+<h4 id="现有的文本分类算法"><a href="#现有的文本分类算法" class="headerlink" title="现有的文本分类算法"></a>现有的文本分类算法</h4><h5 id="word2vec预训练词向量"><a href="#word2vec预训练词向量" class="headerlink" title="word2vec预训练词向量"></a>word2vec预训练词向量</h5><h5 id="textCNN-模型"><a href="#textCNN-模型" class="headerlink" title="textCNN 模型"></a>textCNN 模型</h5><h5 id="charCNN-模型"><a href="#charCNN-模型" class="headerlink" title="charCNN 模型"></a>charCNN 模型</h5><p>不利于处理长文本的分类</p>
+<h5 id="Bi-LSTM-模型"><a href="#Bi-LSTM-模型" class="headerlink" title="Bi-LSTM 模型"></a>Bi-LSTM 模型</h5><p>Bi-LSTM即双向LSTM，较单向的LSTM，Bi-LSTM能更好地捕获句子中上下文的信息。</p>
+<p>（LSTM是RNN的变体，RNN假设我们的<strong>样本是基于序列的</strong>。比如一段段连续的语音，一段段连续的手写文字。）</p>
+<h5 id="Bi-LSTM-Attention-模型"><a href="#Bi-LSTM-Attention-模型" class="headerlink" title="Bi-LSTM + Attention 模型"></a>Bi-LSTM + Attention 模型</h5><p>Bi-LSTM + Attention模型来源于论文Attention-Based Bidirectional Long Short-Term Memory Networks for Relation Classification。 </p>
+<p>Bi-LSTM + Attention 就是在Bi-LSTM的模型上加入Attention层，在Bi-LSTM中我们会用最后一个时序 的输出向量 作为特征向量，然后进行softmax分类。Attention是先计算每个时序的权重，然后将所有时序 的向量进行加权和作为特征向量，然后进行softmax分类。在实验中，加上Attention确实对结果有所提升。</p>
+<h5 id="Transformer-模型"><a href="#Transformer-模型" class="headerlink" title="Transformer 模型"></a>Transformer 模型</h5><p>对于Transformer来说，需要明确加入位置编码学习position Embedding。因为对于self  Attention来说，它让当前输入单词和句子中任意单词进行相似计算，然后归一化计算出句子中各个单词对应的权重，再利用权重与各个单词对应的变换后V值相乘累加，得出集中后的embedding向量，此间是损失掉了位置信息的。因此，为了引入位置信息编码，Transformer对每个单词一个Position embedding，将单词embedding和单词对应的position embedding加起来形成单词的输入embedding。</p>
+<p>Doc2Vec+LR  /hanlp/py</p>
+<p>CNN </p>
+<p>RNN</p>
+<p>TF-IDF+贝叶斯    /CSDN/homework3.py</p>
 
     </div>
 
@@ -303,7 +290,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/CTF/" rel="tag"># CTF</a>
+              <a href="/tags/NLP/" rel="tag"># NLP</a>
           </div>
 
         
@@ -312,12 +299,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/" rel="prev" title="每日一题3-24">
-      <i class="fa fa-chevron-left"></i> 每日一题3-24
+    <a href="/2021/05/31/NLP%E5%85%A5%E9%97%A8/" rel="prev" title="NLP入门">
+      <i class="fa fa-chevron-left"></i> NLP入门
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/03/29/zstack%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%8D%8F%E8%B0%83%E5%99%A8/" rel="next" title="zstack协议栈学习之NV">
-      zstack协议栈学习之NV <i class="fa fa-chevron-right"></i>
+    <a href="/2021/07/14/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF%EF%BC%88%E9%9A%90%E7%A7%81%EF%BC%89/" rel="next" title="论文积累（隐私）">
+      论文积累（隐私） <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -377,7 +364,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#XSS-%E8%B7%A8%E7%AB%99%E8%84%9A%E6%9C%AC%E6%94%BB%E5%87%BB"><span class="nav-number">1.</span> <span class="nav-text">XSS-跨站脚本攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E4%BA%8EJavaScript"><span class="nav-number">1.1.</span> <span class="nav-text">关于JavaScript</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#html%E4%B8%8Ejs%E5%9F%BA%E7%A1%80"><span class="nav-number">1.2.</span> <span class="nav-text">html与js基础</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E5%A4%A9%EF%BC%88%E3%80%8Apython%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E5%AE%9E%E6%88%98%E3%80%8B%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">第三天（《python自然语言处理实战》）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8E%B0%E6%9C%89%E7%9A%84%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB%E7%AE%97%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">现有的文本分类算法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#word2vec%E9%A2%84%E8%AE%AD%E7%BB%83%E8%AF%8D%E5%90%91%E9%87%8F"><span class="nav-number">2.1.</span> <span class="nav-text">word2vec预训练词向量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#textCNN-%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.2.</span> <span class="nav-text">textCNN 模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#charCNN-%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.3.</span> <span class="nav-text">charCNN 模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Bi-LSTM-%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.4.</span> <span class="nav-text">Bi-LSTM 模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Bi-LSTM-Attention-%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.5.</span> <span class="nav-text">Bi-LSTM + Attention 模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Transformer-%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.6.</span> <span class="nav-text">Transformer 模型</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
