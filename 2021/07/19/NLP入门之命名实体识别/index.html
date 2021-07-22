@@ -20,20 +20,25 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="zzzz准备实战，python，tensorflow，keras，Scikit-learn 第三天（《python自然语言处理实战》） jieba分词  准确模式：最精确的分开，适合文本分析 全模式：把句子里的所有单词扫描出来，不能解决歧义 搜索引擎模式：在精准模式的基础上，对长词再次切分（会把所有可能的词输出）">
+  <meta name="description" content="什么是命名实体识别命名实体识别（Named Entity Recognition，简称NER）是信息提取、问答系统、句法分析、机器翻译等应用领域的重要基础工具，在自然语言处理技术走向实用化的过程中占有重要地位。一般来说，命名实体识别的任务就是识别出待处理文本中三大类（实体类、时间类和数字类）、七小类（人名、机构名、地名、时间、日期、货币和百分比）命名实体。  “小明早上8点去学校上课。” 人名：小">
 <meta property="og:type" content="article">
-<meta property="og:title" content="NLP入门（二）">
-<meta property="og:url" content="http://example.com/2021/06/03/NLP%E5%85%A5%E9%97%A8%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:title" content="NLP入门之命名实体识别">
+<meta property="og:url" content="http://example.com/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/index.html">
 <meta property="og:site_name" content="L1E6N0A2">
-<meta property="og:description" content="zzzz准备实战，python，tensorflow，keras，Scikit-learn 第三天（《python自然语言处理实战》） jieba分词  准确模式：最精确的分开，适合文本分析 全模式：把句子里的所有单词扫描出来，不能解决歧义 搜索引擎模式：在精准模式的基础上，对长词再次切分（会把所有可能的词输出）">
+<meta property="og:description" content="什么是命名实体识别命名实体识别（Named Entity Recognition，简称NER）是信息提取、问答系统、句法分析、机器翻译等应用领域的重要基础工具，在自然语言处理技术走向实用化的过程中占有重要地位。一般来说，命名实体识别的任务就是识别出待处理文本中三大类（实体类、时间类和数字类）、七小类（人名、机构名、地名、时间、日期、货币和百分比）命名实体。  “小明早上8点去学校上课。” 人名：小">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-06-03T12:36:38.000Z">
-<meta property="article:modified_time" content="2021-07-15T08:08:26.745Z">
+<meta property="og:image" content="http://example.com/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/RNN.png">
+<meta property="og:image" content="http://example.com/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/Blog/blog/source_posts/NLP入门之命名实体识别/RNN.png">
+<meta property="og:image" content="http://example.com/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/self.png">
+<meta property="og:image" content="http://example.com/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/Blog/blog/source_posts/NLP入门之命名实体识别/self.png">
+<meta property="article:published_time" content="2021-07-19T10:55:53.000Z">
+<meta property="article:modified_time" content="2021-07-22T01:17:59.015Z">
 <meta property="article:author" content="lyj789">
 <meta property="article:tag" content="NLP">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/RNN.png">
 
-<link rel="canonical" href="http://example.com/2021/06/03/NLP%E5%85%A5%E9%97%A8%EF%BC%88%E4%BA%8C%EF%BC%89/">
+<link rel="canonical" href="http://example.com/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/">
 
 
 <script id="page-configurations">
@@ -46,7 +51,7 @@
   };
 </script>
 
-  <title>NLP入门（二） | L1E6N0A2</title>
+  <title>NLP入门之命名实体识别 | L1E6N0A2</title>
   
 
 
@@ -152,7 +157,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/03/NLP%E5%85%A5%E9%97%A8%EF%BC%88%E4%BA%8C%EF%BC%89/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -165,7 +170,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          NLP入门（二）
+          NLP入门之命名实体识别
         </h1>
 
         <div class="post-meta">
@@ -175,14 +180,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-06-03 20:36:38" itemprop="dateCreated datePublished" datetime="2021-06-03T20:36:38+08:00">2021-06-03</time>
+              <time title="创建时间：2021-07-19 18:55:53" itemprop="dateCreated datePublished" datetime="2021-07-19T18:55:53+08:00">2021-07-19</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-07-15 16:08:26" itemprop="dateModified" datetime="2021-07-15T16:08:26+08:00">2021-07-15</time>
+                <time title="修改时间：2021-07-22 09:17:59" itemprop="dateModified" datetime="2021-07-22T09:17:59+08:00">2021-07-22</time>
               </span>
 
           
@@ -198,14 +203,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.3k</span>
+              <span>1.7k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>2 分钟</span>
             </span>
 
         </div>
@@ -217,64 +222,70 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>zzzz准备实战，python，tensorflow，keras，Scikit-learn</p>
-<h4 id="第三天（《python自然语言处理实战》）"><a href="#第三天（《python自然语言处理实战》）" class="headerlink" title="第三天（《python自然语言处理实战》）"></a>第三天（《python自然语言处理实战》）</h4><ul>
-<li><p>jieba分词</p>
-<ul>
-<li>准确模式：最精确的分开，适合文本分析</li>
-<li>全模式：把句子里的所有单词扫描出来，不能解决歧义</li>
-<li>搜索引擎模式：在精准模式的基础上，对长词再次切分（会把所有可能的词输出）</li>
-</ul>
-<a id="more"></a>
-</li>
-<li><p>常用的无监督关键词提取算法</p>
-<ul>
-<li>TF-IDF</li>
-<li>TextRank：hanlp的extractKeyword（提取关键词）、extractSummary（自动摘要 ）</li>
-<li>主体模型算法：对文档的隐含语义结构进行聚类（原理还是不太理解，已经没人用了）<ul>
-<li>LDA:《基于特征选择及LDA模型的中文文本分类研究与实现》准确率不理想</li>
-<li>LSI/LSA</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>常见的文本分类算法</p>
-<ul>
-<li>逻辑回归（LR）</li>
-<li>支持向量机（SVM）</li>
-<li>K近邻居（KNN）</li>
-<li>决策树（DT）</li>
-<li>神经网络（NN）</li>
-</ul>
-</li>
-<li><p>文本分类的步骤</p>
-<ul>
-<li>定义阶段：定义数据以及分类体系（具体分为哪几种）</li>
-<li>数据预处理（对文档进行分词，去掉停用词等）</li>
-<li>数据特征提取（对文档矩阵降维，提取训练集中最有用的特征）<ul>
-<li>Bag-of-words</li>
-<li>统计特征：TF，IDF，TF-IDF</li>
-<li>N_-Gram</li>
-</ul>
-</li>
-<li>模型训练：选择模型和算法，训练出文本分类器</li>
-<li>评测：在测试集上测试评评估分类器的性能</li>
-<li>应用：对待分类的文档进行分类</li>
-</ul>
-</li>
-</ul>
-<h4 id="现有的文本分类算法"><a href="#现有的文本分类算法" class="headerlink" title="现有的文本分类算法"></a>现有的文本分类算法</h4><h5 id="word2vec预训练词向量"><a href="#word2vec预训练词向量" class="headerlink" title="word2vec预训练词向量"></a>word2vec预训练词向量</h5><h5 id="textCNN-模型"><a href="#textCNN-模型" class="headerlink" title="textCNN 模型"></a>textCNN 模型</h5><h5 id="charCNN-模型"><a href="#charCNN-模型" class="headerlink" title="charCNN 模型"></a>charCNN 模型</h5><p>不利于处理长文本的分类</p>
-<h5 id="Bi-LSTM-模型"><a href="#Bi-LSTM-模型" class="headerlink" title="Bi-LSTM 模型"></a>Bi-LSTM 模型</h5><p>Bi-LSTM即双向LSTM，较单向的LSTM，Bi-LSTM能更好地捕获句子中上下文的信息。</p>
-<p>（LSTM是RNN的变体，RNN假设我们的<strong>样本是基于序列的</strong>。比如一段段连续的语音，一段段连续的手写文字。）</p>
-<h5 id="Bi-LSTM-Attention-模型"><a href="#Bi-LSTM-Attention-模型" class="headerlink" title="Bi-LSTM + Attention 模型"></a>Bi-LSTM + Attention 模型</h5><p>Bi-LSTM + Attention模型来源于论文Attention-Based Bidirectional Long Short-Term Memory Networks for Relation Classification。 </p>
-<p>Bi-LSTM + Attention 就是在Bi-LSTM的模型上加入Attention层，在Bi-LSTM中我们会用最后一个时序 的输出向量 作为特征向量，然后进行softmax分类。Attention是先计算每个时序的权重，然后将所有时序 的向量进行加权和作为特征向量，然后进行softmax分类。在实验中，加上Attention确实对结果有所提升。</p>
-<h5 id="Transformer-模型"><a href="#Transformer-模型" class="headerlink" title="Transformer 模型"></a>Transformer 模型</h5><p>对于Transformer来说，需要明确加入位置编码学习position Embedding。因为对于self  Attention来说，它让当前输入单词和句子中任意单词进行相似计算，然后归一化计算出句子中各个单词对应的权重，再利用权重与各个单词对应的变换后V值相乘累加，得出集中后的embedding向量，此间是损失掉了位置信息的。因此，为了引入位置信息编码，Transformer对每个单词一个Position embedding，将单词embedding和单词对应的position embedding加起来形成单词的输入embedding。</p>
+        <h4 id="什么是命名实体识别"><a href="#什么是命名实体识别" class="headerlink" title="什么是命名实体识别"></a>什么是命名实体识别</h4><p>命名实体识别（Named Entity Recognition，简称NER）是信息提取、问答系统、句法分析、机器翻译等应用领域的重要基础工具，在自然语言处理技术走向实用化的过程中占有重要地位。一般来说，命名实体识别的任务就是识别出待处理文本中<strong>三大类（实体类、时间类和数字类）、七小类（人名、机构名、地名、时间、日期、货币和百分比）</strong>命名实体。</p>
 <blockquote>
-<p>Doc2Vec+LR  /hanlp/py</p>
-<p>CNN </p>
-<p>RNN</p>
-<p>TF-IDF+贝叶斯    /CSDN/homework3.py</p>
+<p>“小明早上8点去学校上课。”</p>
+<p>人名：小明，时间：早上8点，地点：学校。</p>
 </blockquote>
+<p>命名实体识别只能识别名词短语或者是一些领域的专有名词，不适合识别“目的”“对象”这种。</p>
+<a id="more"></a>
+
+<h3 id="BERT模型"><a href="#BERT模型" class="headerlink" title="BERT模型"></a>BERT模型</h3><p>开源的<a target="_blank" rel="noopener" href="https://github.com/google-research/bert">https://github.com/google-research/bert</a></p>
+<p>Bert是由12层双向Transformer搭建而来,重点在于Transformer网络架构</p>
+<p>bert 模型本身其实就是transformer encoder 部分</p>
+<p>BERT是一个两阶段模型，包括<strong>pre-training</strong>(预训练)和<strong>Fine-tuning</strong>(微调)。BERT提出构建一个底层的基础模型来彻底建模上下文关系，而通过fine-tuning来进一步构造出针对特定NLP问题（如NLI，NER等）的特定模型。</p>
+<h4 id="Transformer"><a href="#Transformer" class="headerlink" title="Transformer"></a>Transformer</h4><p>机器翻译模型中常见的seq2seq</p>
+<p>RNN模型图如下，后一个的输入是前一个输出的中间结果，因此各部分不独立，不能并行计算。</p>
+<img src="/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/RNN.png" class title="RNN">
+
+<p><img src="/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/Blog\blog\source_posts\NLP入门之命名实体识别\RNN.png" alt="RNN"></p>
+<p>Self-Attention：对于输入的数据，关注点不同，如何让计算机关注到这些有价值的信息。</p>
+<p>计算机通过上下文判断，不是人为预加的。在生成单词词向量时考虑上下文语境。 </p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_40871455/article/details/86084560">https://blog.csdn.net/weixin_40871455/article/details/86084560</a></p>
+<img src="/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/self.png" class title="self">
+
+<p><img src="/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/Blog\blog\source_posts\NLP入门之命名实体识别\self.png" alt="self"></p>
+<p>传统word2vec的问题是不同语境中相同的词如何表达，bert的改进是<strong>结合上下文</strong>预训练</p>
+<h4 id="代码框架"><a href="#代码框架" class="headerlink" title="代码框架"></a>代码框架</h4><p><strong>坑1</strong>：想用官方小例子（MRPC）试一下，但是在通过脚本下载GLUE数据时出现错误</p>
+<p>解决：</p>
+<ul>
+<li>先手动下载dev_ids.tsv映射表保存在glue_data/MRPC文件夹下，浏览器访问这个链接</li>
+</ul>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://firebasestorage.googleapis.com/v0/b/mtl-sentence-representations.appspot.com/o/data%2Fmrpc_dev_ids.tsv?alt=media&amp;token=ec5c0836-31d5-48f4-b431-7480817f1adc">https://firebasestorage.googleapis.com/v0/b/mtl-sentence-representations.appspot.com/o/data%2Fmrpc_dev_ids.tsv?alt=media&amp;token=ec5c0836-31d5-48f4-b431-7480817f1adc</a></p>
+</blockquote>
+<ul>
+<li>注释掉脚本download_glue_data.py里下载dev_ids.tsv文件的语句</li>
+</ul>
+<blockquote>
+<p># urllib.request.urlretrieve(TASK2PATH[“MRPC”], os.path.join(mrpc_dir, “dev_ids.tsv”))</p>
+</blockquote>
+<ul>
+<li><p>去微软官网下载：<a target="_blank" rel="noopener" href="https://www.microsoft.com/en-ca/download/details.aspx?id=52398">https://www.microsoft.com/en-ca/download/details.aspx?id=52398</a><br>将 msr_paraphrase_test.txt， msr_paraphrase_train.txt放在MRPC文件夹中。</p>
+</li>
+<li><p>在运行download_glue_data.py，就可以成功下载数据了，在glue_data/MRPC文件下出现 dev.tsv，test.tsv，train.tsv这三个文件，说明MRPC语料下载成功。</p>
+</li>
+</ul>
+<p>坑2：tensorflow版本太高，需要1.x，但是python3.8以上只支持2.x</p>
+<p>解决：</p>
+<ul>
+<li>在Anaconda中安装虚拟python环境，python版本低一点，3.6就可以</li>
+</ul>
+<blockquote>
+<p>conda create -n py36 python=3.6</p>
+</blockquote>
+<ul>
+<li>激活python3.6版本，使用命令：</li>
+</ul>
+<blockquote>
+<p>activate py36</p>
+</blockquote>
+<ul>
+<li>之后pip install tensorflow==1.15.0，就可以成功安装了。</li>
+</ul>
+<h4 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h4><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/16e1f6a7aaef">https://www.jianshu.com/p/16e1f6a7aaef</a>  </p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/L141210113/article/details/106497194/">https://blog.csdn.net/L141210113/article/details/106497194/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xiaodai0/p/9780101.html">https://www.cnblogs.com/xiaodai0/p/9780101.html</a></p>
 
     </div>
 
@@ -293,13 +304,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/05/31/NLP%E5%85%A5%E9%97%A8/" rel="prev" title="NLP入门">
-      <i class="fa fa-chevron-left"></i> NLP入门
+    <a href="/2021/07/14/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF%EF%BC%88%E9%9A%90%E7%A7%81%EF%BC%89/" rel="prev" title="论文积累（隐私）">
+      <i class="fa fa-chevron-left"></i> 论文积累（隐私）
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/07/14/%E8%AE%BA%E6%96%87%E7%A7%AF%E7%B4%AF%EF%BC%88%E9%9A%90%E7%A7%81%EF%BC%89/" rel="next" title="论文积累（隐私）">
-      论文积累（隐私） <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -358,7 +366,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E5%A4%A9%EF%BC%88%E3%80%8Apython%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E5%AE%9E%E6%88%98%E3%80%8B%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">第三天（《python自然语言处理实战》）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8E%B0%E6%9C%89%E7%9A%84%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB%E7%AE%97%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">现有的文本分类算法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#word2vec%E9%A2%84%E8%AE%AD%E7%BB%83%E8%AF%8D%E5%90%91%E9%87%8F"><span class="nav-number">2.1.</span> <span class="nav-text">word2vec预训练词向量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#textCNN-%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.2.</span> <span class="nav-text">textCNN 模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#charCNN-%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.3.</span> <span class="nav-text">charCNN 模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Bi-LSTM-%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.4.</span> <span class="nav-text">Bi-LSTM 模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Bi-LSTM-Attention-%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.5.</span> <span class="nav-text">Bi-LSTM + Attention 模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Transformer-%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.6.</span> <span class="nav-text">Transformer 模型</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB"><span class="nav-number">1.</span> <span class="nav-text">什么是命名实体识别</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BERT%E6%A8%A1%E5%9E%8B"><span class="nav-number"></span> <span class="nav-text">BERT模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Transformer"><span class="nav-number">1.</span> <span class="nav-text">Transformer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E6%A1%86%E6%9E%B6"><span class="nav-number">2.</span> <span class="nav-text">代码框架</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%EF%BC%9A"><span class="nav-number">3.</span> <span class="nav-text">参考资料：</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
