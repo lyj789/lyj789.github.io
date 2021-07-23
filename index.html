@@ -149,6 +149,124 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/" class="post-title-link" itemprop="url">NLP入门之事件抽取</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-07-23 14:19:14 / 修改时间：16:28:54" itemprop="dateCreated datePublished" datetime="2021-07-23T14:19:14+08:00">2021-07-23</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="NLP信息抽取-Information-Extraction"><a href="#NLP信息抽取-Information-Extraction" class="headerlink" title="NLP信息抽取(Information Extraction)"></a>NLP信息抽取(Information Extraction)</h3><p>信息抽取，即从自然语言文本中，抽取出特定的事件或事实信息，帮助我们将海量内容自动分类、提取和重构。这些信息通常包括实体（entity）、关系（relation）、事件（event）。</p>
+<p>信息抽取主要包括三个子任务：<strong>关系抽取、命名实体识别、事件抽取。</strong></p>
+<p><strong>命名实体识别</strong>：可以算是此法分析中未登录词识别的一种，是用来识别专有词、时间、地点、手机型号等等具有特定意义的实体。</p>
+<p><strong>关系抽取</strong>：为了抽取文本中包含的关系，主要用于抽取实体间的关系</p>
+<h4 id="事件抽取介绍"><a href="#事件抽取介绍" class="headerlink" title="事件抽取介绍"></a>事件抽取介绍</h4><p><strong>事件抽取技术是从非结构化信息中抽取出用户感兴趣的事件，并以结构化呈现给用户</strong>。事件抽取在网络舆情监控、突发事件告警、情报收集领域 有着重要应用。网络舆情变化通常是由某些热点社会事件引发的，事件抽取技术可以在第一时间发现这些热点事件，从而为预测网络舆情变化提供帮助。</p>
+<p>根据ACE2005 评测，组成事件的各元素包括: <strong>触发词（event trigger）、事件类型（event type）、论元（event  argument）及论元角色（argument role）</strong>。事件抽取任务可分解为4 个子任务:  触发词识别、事件类型分类、论元识别和角色分类任务。</p>
+<p>其中，触发词识别和事件类型分类可合并成事件识别任务。论元识别和角色分类可合并成论元角色分类任务。事件识别判断句子中的每个单词归属的事件类型，是一个基于单词的多分类任务。角色分类任务则是一个基于词对的多分类任务，判断句子中任意一对触发词和实体之间的角色关系。</p>
+<p><strong>下面举一个例子：</strong></p>
+<p>要描述“企业成立”这样一种事件，需要成立时间、创立者、企业名称、企业业务范围等等信息。通过信息抽取，有了这样的结构化数据，人或者机器可以做很多事情，比如把老蒋创办的所有企业情报全都聚合到一起，然后看他亏了多少。</p>
+<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/first.png" class title="first">
+
+<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\first.png" alt="first"></p>
+<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/second.jpg" class title="second">
+
+<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\second.jpg" alt="second"></p>
+<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/example.jpg" class title="example">
+
+<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\example.jpg" alt="example"></p>
+<p>（事件要素：“例子”；要素的角色：“字段”）</p>
+<h4 id="事件抽取方式"><a href="#事件抽取方式" class="headerlink" title="事件抽取方式"></a>事件抽取方式</h4><ul>
+<li><p><strong>基于模式匹配的方法</strong>：基于人工编写的规则，基于语法树或者正则表达式</p>
+<p>基于模式匹配的方法在特定领域中性能较好，知识表示简洁，便于理解和后续应用，但对于语言、领域和文档形式都有不同程度的依赖，覆盖度和可移植性较差。</p>
+<p>模式匹配的方法中，模板准确性是影响整个方法性能的重要因素。在实际应用中，模式匹配方法应用非常广泛，主要特点是高准确率低召回率，要提高召回率，一是要建立更完整的模板库，二是可以用半监督的方法来建 trigger 字典。</p>
+</li>
+<li><p><strong>基于统计——传统机器学习</strong></p>
+<p>借鉴文本分类的思想，将事件类别及事件元素的识别转化成为分类问题，<strong>其核心在于分类器的构造和特征的选择</strong>。</p>
+<p>对元事件的识别主要包括事件类别的识别与分类以及事件元素识别两大核心任务。事件抽取方法可以分为 pipeline 和 joint model 两大类：</p>
+<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/pip.png" class title="pip">
+
+<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\pip.png" alt="pip"></p>
+<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/joint.png" class title="joint">
+
+<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\joint.png" alt="joint"></p>
+<p>基于机器学习的方法虽然不依赖于语料的内容与格式，但需要大规模的标准语料，否则会出现较为严重的数据稀疏问题。另外，特征选取也是决定机器学习结果好坏的重要因素。因此，怎样避免数据稀疏现象以及如何选择合适的特征，成为基于机器学习方法研究的重要课题。</p>
+</li>
+<li><p><strong>基于统计 - 深度学习</strong>：（主流）</p>
+<p>是一种有监督多元分类任务，事件抽取方法包括2个步骤: 特征选择和分类模型。</p>
+<ul>
+<li>Pipeline - DMCNN</li>
+<li>Joint Model - JRNN</li>
+</ul>
+</li>
+</ul>
+<h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/183966841">https://zhuanlan.zhihu.com/p/183966841</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/50903358">https://zhuanlan.zhihu.com/p/50903358</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/173769646">https://zhuanlan.zhihu.com/p/173769646</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -936,99 +1054,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="lyj789">
-      <meta itemprop="description" content="快乐打工人">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="L1E6N0A2">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/" class="post-title-link" itemprop="url">每日一题3-24</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-03-24 10:57:43" itemprop="dateCreated datePublished" datetime="2021-03-24T10:57:43+08:00">2021-03-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-03-27 14:04:09" itemprop="dateModified" datetime="2021-03-27T14:04:09+08:00">2021-03-27</time>
-              </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>4.2k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>4 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="任意文件读取"><a href="#任意文件读取" class="headerlink" title="任意文件读取"></a>任意文件读取</h3><p>概念：攻击者通过一些手段读取服务器上开发者不允许读到的文件，包括服务器的配置文件、文件形式存储的密钥、服务器信息、历史命令等等。</p>
-<p>任意文件读取是属于文件操作漏洞的一种，一般任意文件读取漏洞可以读取配置信息甚至系统重要文件。严重的话，就可能导致SSRF，进而漫游至内网。</p>
-<ul>
-<li>存读取文件的函数</li>
-<li>读取文件的路径用户可控，且未校验或校验不严</li>
-<li>输出了文件内容</li>
-</ul>
-<p><code>readfile()</code>、<code>file_get_contents()</code>、<code>fopen()</code>中，<code>$filename</code>没有经过校验或者校验不合格，用户可控制变量读取任意文件，如<code>/etc/passwd</code>、<code>./index.php</code>、<code>/config.ini</code></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/03/24/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%983-24/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1098,7 +1123,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">39</span>
+          <span class="site-state-item-count">40</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1140,13 +1165,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">102k</span>
+    <span title="站点总字数">104k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">1:33</span>
+    <span title="站点阅读时长">1:34</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="NLP信息抽取(Information Extraction)信息抽取，即从自然语言文本中，抽取出特定的事件或事实信息，帮助我们将海量内容自动分类、提取和重构。这些信息通常包括实体（entity）、关系（relation）、事件（event）。 信息抽取主要包括三个子任务：关系抽取、命名实体识别、事件抽取。 命名实体识别：可以算是此法分析中未登录词识别的一种，是用来识别专有词、时间、地点、手机型号">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NLP入门之事件抽取">
+<meta property="og:url" content="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/index.html">
+<meta property="og:site_name" content="L1E6N0A2">
+<meta property="og:description" content="NLP信息抽取(Information Extraction)信息抽取，即从自然语言文本中，抽取出特定的事件或事实信息，帮助我们将海量内容自动分类、提取和重构。这些信息通常包括实体（entity）、关系（relation）、事件（event）。 信息抽取主要包括三个子任务：关系抽取、命名实体识别、事件抽取。 命名实体识别：可以算是此法分析中未登录词识别的一种，是用来识别专有词、时间、地点、手机型号">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/first.png">
+<meta property="og:image" content="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog/blog/source_posts/NLP入门之事件抽取/first.png">
+<meta property="og:image" content="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/second.jpg">
+<meta property="og:image" content="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog/blog/source_posts/NLP入门之事件抽取/second.jpg">
+<meta property="og:image" content="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/example.jpg">
+<meta property="og:image" content="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog/blog/source_posts/NLP入门之事件抽取/example.jpg">
+<meta property="og:image" content="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/pip.png">
+<meta property="og:image" content="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog/blog/source_posts/NLP入门之事件抽取/pip.png">
+<meta property="og:image" content="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/joint.png">
+<meta property="og:image" content="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog/blog/source_posts/NLP入门之事件抽取/joint.png">
+<meta property="article:published_time" content="2021-07-23T06:19:14.000Z">
+<meta property="article:modified_time" content="2021-07-23T08:28:54.938Z">
+<meta property="article:author" content="lyj789">
+<meta property="article:tag" content="NLP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/first.png">
+
+<link rel="canonical" href="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>NLP入门之事件抽取 | L1E6N0A2</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">L1E6N0A2</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">监督自己不断学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="lyj789">
+      <meta itemprop="description" content="快乐打工人">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="L1E6N0A2">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          NLP入门之事件抽取
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-07-23 14:19:14 / 修改时间：16:28:54" itemprop="dateCreated datePublished" datetime="2021-07-23T14:19:14+08:00">2021-07-23</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="NLP信息抽取-Information-Extraction"><a href="#NLP信息抽取-Information-Extraction" class="headerlink" title="NLP信息抽取(Information Extraction)"></a>NLP信息抽取(Information Extraction)</h3><p>信息抽取，即从自然语言文本中，抽取出特定的事件或事实信息，帮助我们将海量内容自动分类、提取和重构。这些信息通常包括实体（entity）、关系（relation）、事件（event）。</p>
+<p>信息抽取主要包括三个子任务：<strong>关系抽取、命名实体识别、事件抽取。</strong></p>
+<p><strong>命名实体识别</strong>：可以算是此法分析中未登录词识别的一种，是用来识别专有词、时间、地点、手机型号等等具有特定意义的实体。</p>
+<p><strong>关系抽取</strong>：为了抽取文本中包含的关系，主要用于抽取实体间的关系</p>
+<h4 id="事件抽取介绍"><a href="#事件抽取介绍" class="headerlink" title="事件抽取介绍"></a>事件抽取介绍</h4><p><strong>事件抽取技术是从非结构化信息中抽取出用户感兴趣的事件，并以结构化呈现给用户</strong>。事件抽取在网络舆情监控、突发事件告警、情报收集领域 有着重要应用。网络舆情变化通常是由某些热点社会事件引发的，事件抽取技术可以在第一时间发现这些热点事件，从而为预测网络舆情变化提供帮助。</p>
+<p>根据ACE2005 评测，组成事件的各元素包括: <strong>触发词（event trigger）、事件类型（event type）、论元（event  argument）及论元角色（argument role）</strong>。事件抽取任务可分解为4 个子任务:  触发词识别、事件类型分类、论元识别和角色分类任务。</p>
+<p>其中，触发词识别和事件类型分类可合并成事件识别任务。论元识别和角色分类可合并成论元角色分类任务。事件识别判断句子中的每个单词归属的事件类型，是一个基于单词的多分类任务。角色分类任务则是一个基于词对的多分类任务，判断句子中任意一对触发词和实体之间的角色关系。</p>
+<p><strong>下面举一个例子：</strong></p>
+<p>要描述“企业成立”这样一种事件，需要成立时间、创立者、企业名称、企业业务范围等等信息。通过信息抽取，有了这样的结构化数据，人或者机器可以做很多事情，比如把老蒋创办的所有企业情报全都聚合到一起，然后看他亏了多少。</p>
+<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/first.png" class title="first">
+
+<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\first.png" alt="first"></p>
+<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/second.jpg" class title="second">
+
+<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\second.jpg" alt="second"></p>
+<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/example.jpg" class title="example">
+
+<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\example.jpg" alt="example"></p>
+<p>（事件要素：“例子”；要素的角色：“字段”）</p>
+<h4 id="事件抽取方式"><a href="#事件抽取方式" class="headerlink" title="事件抽取方式"></a>事件抽取方式</h4><ul>
+<li><p><strong>基于模式匹配的方法</strong>：基于人工编写的规则，基于语法树或者正则表达式</p>
+<p>基于模式匹配的方法在特定领域中性能较好，知识表示简洁，便于理解和后续应用，但对于语言、领域和文档形式都有不同程度的依赖，覆盖度和可移植性较差。</p>
+<p>模式匹配的方法中，模板准确性是影响整个方法性能的重要因素。在实际应用中，模式匹配方法应用非常广泛，主要特点是高准确率低召回率，要提高召回率，一是要建立更完整的模板库，二是可以用半监督的方法来建 trigger 字典。</p>
+</li>
+<li><p><strong>基于统计——传统机器学习</strong></p>
+<p>借鉴文本分类的思想，将事件类别及事件元素的识别转化成为分类问题，<strong>其核心在于分类器的构造和特征的选择</strong>。</p>
+<p>对元事件的识别主要包括事件类别的识别与分类以及事件元素识别两大核心任务。事件抽取方法可以分为 pipeline 和 joint model 两大类：</p>
+<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/pip.png" class title="pip">
+
+<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\pip.png" alt="pip"></p>
+<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/joint.png" class title="joint">
+
+<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\joint.png" alt="joint"></p>
+<p>基于机器学习的方法虽然不依赖于语料的内容与格式，但需要大规模的标准语料，否则会出现较为严重的数据稀疏问题。另外，特征选取也是决定机器学习结果好坏的重要因素。因此，怎样避免数据稀疏现象以及如何选择合适的特征，成为基于机器学习方法研究的重要课题。</p>
+</li>
+<li><p><strong>基于统计 - 深度学习</strong>：（主流）</p>
+<p>是一种有监督多元分类任务，事件抽取方法包括2个步骤: 特征选择和分类模型。</p>
+<ul>
+<li>Pipeline - DMCNN</li>
+<li>Joint Model - JRNN</li>
+</ul>
+</li>
+</ul>
+<h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/183966841">https://zhuanlan.zhihu.com/p/183966841</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/50903358">https://zhuanlan.zhihu.com/p/50903358</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/173769646">https://zhuanlan.zhihu.com/p/173769646</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/NLP/" rel="tag"># NLP</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/19/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E5%91%BD%E5%90%8D%E5%AE%9E%E4%BD%93%E8%AF%86%E5%88%AB/" rel="prev" title="NLP入门之命名实体识别">
+      <i class="fa fa-chevron-left"></i> NLP入门之命名实体识别
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#NLP%E4%BF%A1%E6%81%AF%E6%8A%BD%E5%8F%96-Information-Extraction"><span class="nav-number">1.</span> <span class="nav-text">NLP信息抽取(Information Extraction)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.1.</span> <span class="nav-text">事件抽取介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">事件抽取方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">1.3.</span> <span class="nav-text">参考文献</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">lyj789</p>
+  <div class="site-description" itemprop="description">快乐打工人</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lyj789</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">104k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">1:34</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
