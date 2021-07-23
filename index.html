@@ -174,7 +174,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-07-23 14:19:14 / 修改时间：16:28:54" itemprop="dateCreated datePublished" datetime="2021-07-23T14:19:14+08:00">2021-07-23</time>
+              <time title="创建时间：2021-07-23 14:19:14 / 修改时间：21:51:16" itemprop="dateCreated datePublished" datetime="2021-07-23T14:19:14+08:00">2021-07-23</time>
             </span>
 
           <br>
@@ -206,49 +206,14 @@
 <p>信息抽取主要包括三个子任务：<strong>关系抽取、命名实体识别、事件抽取。</strong></p>
 <p><strong>命名实体识别</strong>：可以算是此法分析中未登录词识别的一种，是用来识别专有词、时间、地点、手机型号等等具有特定意义的实体。</p>
 <p><strong>关系抽取</strong>：为了抽取文本中包含的关系，主要用于抽取实体间的关系</p>
-<h4 id="事件抽取介绍"><a href="#事件抽取介绍" class="headerlink" title="事件抽取介绍"></a>事件抽取介绍</h4><p><strong>事件抽取技术是从非结构化信息中抽取出用户感兴趣的事件，并以结构化呈现给用户</strong>。事件抽取在网络舆情监控、突发事件告警、情报收集领域 有着重要应用。网络舆情变化通常是由某些热点社会事件引发的，事件抽取技术可以在第一时间发现这些热点事件，从而为预测网络舆情变化提供帮助。</p>
-<p>根据ACE2005 评测，组成事件的各元素包括: <strong>触发词（event trigger）、事件类型（event type）、论元（event  argument）及论元角色（argument role）</strong>。事件抽取任务可分解为4 个子任务:  触发词识别、事件类型分类、论元识别和角色分类任务。</p>
-<p>其中，触发词识别和事件类型分类可合并成事件识别任务。论元识别和角色分类可合并成论元角色分类任务。事件识别判断句子中的每个单词归属的事件类型，是一个基于单词的多分类任务。角色分类任务则是一个基于词对的多分类任务，判断句子中任意一对触发词和实体之间的角色关系。</p>
-<p><strong>下面举一个例子：</strong></p>
-<p>要描述“企业成立”这样一种事件，需要成立时间、创立者、企业名称、企业业务范围等等信息。通过信息抽取，有了这样的结构化数据，人或者机器可以做很多事情，比如把老蒋创办的所有企业情报全都聚合到一起，然后看他亏了多少。</p>
-<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/first.png" class title="first">
-
-<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\first.png" alt="first"></p>
-<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/second.jpg" class title="second">
-
-<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\second.jpg" alt="second"></p>
-<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/example.jpg" class title="example">
-
-<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\example.jpg" alt="example"></p>
-<p>（事件要素：“例子”；要素的角色：“字段”）</p>
-<h4 id="事件抽取方式"><a href="#事件抽取方式" class="headerlink" title="事件抽取方式"></a>事件抽取方式</h4><ul>
-<li><p><strong>基于模式匹配的方法</strong>：基于人工编写的规则，基于语法树或者正则表达式</p>
-<p>基于模式匹配的方法在特定领域中性能较好，知识表示简洁，便于理解和后续应用，但对于语言、领域和文档形式都有不同程度的依赖，覆盖度和可移植性较差。</p>
-<p>模式匹配的方法中，模板准确性是影响整个方法性能的重要因素。在实际应用中，模式匹配方法应用非常广泛，主要特点是高准确率低召回率，要提高召回率，一是要建立更完整的模板库，二是可以用半监督的方法来建 trigger 字典。</p>
-</li>
-<li><p><strong>基于统计——传统机器学习</strong></p>
-<p>借鉴文本分类的思想，将事件类别及事件元素的识别转化成为分类问题，<strong>其核心在于分类器的构造和特征的选择</strong>。</p>
-<p>对元事件的识别主要包括事件类别的识别与分类以及事件元素识别两大核心任务。事件抽取方法可以分为 pipeline 和 joint model 两大类：</p>
-<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/pip.png" class title="pip">
-
-<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\pip.png" alt="pip"></p>
-<img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/joint.png" class title="joint">
-
-<p><img src="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/Blog\blog\source_posts\NLP入门之事件抽取\joint.png" alt="joint"></p>
-<p>基于机器学习的方法虽然不依赖于语料的内容与格式，但需要大规模的标准语料，否则会出现较为严重的数据稀疏问题。另外，特征选取也是决定机器学习结果好坏的重要因素。因此，怎样避免数据稀疏现象以及如何选择合适的特征，成为基于机器学习方法研究的重要课题。</p>
-</li>
-<li><p><strong>基于统计 - 深度学习</strong>：（主流）</p>
-<p>是一种有监督多元分类任务，事件抽取方法包括2个步骤: 特征选择和分类模型。</p>
-<ul>
-<li>Pipeline - DMCNN</li>
-<li>Joint Model - JRNN</li>
-</ul>
-</li>
-</ul>
-<h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/183966841">https://zhuanlan.zhihu.com/p/183966841</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/50903358">https://zhuanlan.zhihu.com/p/50903358</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/173769646">https://zhuanlan.zhihu.com/p/173769646</a></p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/23/NLP%E5%85%A5%E9%97%A8%E4%B9%8B%E4%BA%8B%E4%BB%B6%E6%8A%BD%E5%8F%96/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
